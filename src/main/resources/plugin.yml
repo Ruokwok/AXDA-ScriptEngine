@@ -1,0 +1,10 @@
+name: AXDA-ScriptEngine
+main: net.axda.se.AXDAScriptEngine
+version: 1.0.0
+api:
+  - '1.0.0'
+  - 'Nukkit-MOT'
+load: STARTUP
+author: Ruok
+description: AXDA ScriptEngine
+website: https://axda.net/

@@ -58,8 +58,8 @@ public class ScriptLoader {
         try {
             Engine engine = new Engine(script);
             engine.execute();
-            engines.put(engine.getDescription().name, engine);
-            logger.info("Loaded " + engine.getDescription().name + " v" + engine.getDescription().getVersionName());
+            engines.put(engine.getDescription().getName(), engine);
+            logger.info("Loaded " + engine.getDescription().getName() + " v" + engine.getDescription().getVersionStr());
         } catch (Throwable t) {
             t.printStackTrace();
         }

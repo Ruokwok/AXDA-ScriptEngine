@@ -4,23 +4,56 @@ import java.util.Map;
 
 public class ScriptDescription {
 
-    public String name;
-    public String description;
-    public String[] version;
-    public Map<String, Object> info;
+    private String name;
+    private String description;
+    private Object[] version;
+    private String versionStr;
+    private Map<String, Object> info;
 
-    public String getVersionName() {
-        if (version == null || version.length == 0) return "null";
+    public String getVersionStr() {
+        return versionStr;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setVersion(Object[] version) {
+        this.version = version;
+        if (version == null || version.length == 0) {
+            versionStr = "null";
+            return;
+        }
         StringBuilder sb = new StringBuilder();
         boolean start = true;
-        for (String v : version) {
+        for (Object v : version) {
             if (start) {
                 start = false;
             } else {
                 sb.append(".");
             }
-            sb.append(v);
+            sb.append(v.toString());
         }
-        return sb.toString();
+        this.versionStr = sb.toString();
+    }
+
+    public Map<String, Object> getInfo() {
+        return info;
+    }
+
+    public void setInfo(Map<String, Object> info) {
+        this.info = info;
     }
 }

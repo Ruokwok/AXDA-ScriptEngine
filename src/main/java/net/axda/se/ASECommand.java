@@ -33,8 +33,8 @@ public class ASECommand extends Command {
         StringBuilder sb = new StringBuilder();
         sb.append("Script Plugins (").append(engines.size()).append("):");
         for (Engine engine : loader.getScriptMap().values()) {
-            sb.append(" ").append(engine.getDescription().name).append(" v")
-                    .append(engine.getDescription().getVersionName())
+            sb.append(" ").append(engine.getDescription().getName()).append(" v")
+                    .append(engine.getDescription().getVersionStr())
                     .append(",");
         }
         sender.sendMessage(sb.toString());

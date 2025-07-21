@@ -67,7 +67,12 @@ public class LL extends API {
         engine.getDescription().setName(name);
         engine.getDescription().setDescription(desc);
         engine.getDescription().setVersion(ver);
-        engine.getDescription().setInfo(info);
+        engine.getDescription().setOthers(info);
+    }
+
+    @HostAccess.Export
+    public String versionString() {
+        return AXDAScriptEngine.getPlugin().getDescription().getVersion();
     }
 
 }

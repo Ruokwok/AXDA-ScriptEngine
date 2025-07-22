@@ -8,7 +8,7 @@ public class ScriptDescription {
     private String description;
     private Object[] version;
     private String versionStr;
-    private Map<String, Object> info;
+    private Map<String, Object> others;
 
     public String getVersionStr() {
         return versionStr;
@@ -49,11 +49,11 @@ public class ScriptDescription {
         this.versionStr = sb.toString();
     }
 
-    public Map<String, Object> getInfo() {
-        return info;
+    public Map<String, Object> getOthers() {
+        return others;
     }
 
-    public void setInfo(Map<String, Object> info) {
-        this.info = info;
+    public void setOthers(Map<String, Object> info) {
+        this.others = info;
     }
 }

@@ -1,6 +1,6 @@
 package net.axda.se.api.function;
 
-import net.axda.se.Engine;
+import net.axda.se.ScriptEngine;
 import net.axda.se.api.API;
 import org.graalvm.polyglot.Value;
 import org.graalvm.polyglot.proxy.ProxyExecutable;
@@ -14,7 +14,7 @@ public abstract class Function extends API implements ProxyExecutable {
     }
 
     @Override
-    public API setEngine(Engine engine) {
+    public API setEngine(ScriptEngine engine) {
         super.setEngine(engine);
         ProxyExecutable function = this::execute;
         this.value = engine.getContext().asValue(function);

@@ -1,5 +1,6 @@
 package net.axda.se;
 
+import cn.nukkit.Server;
 import cn.nukkit.plugin.PluginBase;
 
 import java.io.File;
@@ -9,19 +10,21 @@ public class AXDAScriptEngine extends PluginBase {
     public static final File PLUGIN_PATH = new File("plugins");
     private static AXDAScriptEngine plugin;
     private static int[] version;
+    private ScriptListener listener;
 
     @Override
     public void onLoad() {
         plugin = this;
         System.setProperty("polyglot.engine.WarnInterpreterOnly", "false");
-        getServer().getCommandMap().register("ase", new ASECommand());
-        ScriptLoader.init();
-        ScriptLoader.getInstance().loadPlugins(PLUGIN_PATH);
     }
 
     @Override
     public void onEnable() {
-
+        getServer().getCommandMap().register("ase", new ASECommand());
+        listener = new ScriptListener();
+        ScriptLoader.init();
+        ScriptLoader.getInstance().loadPlugins(PLUGIN_PATH);
+        getServer().getPluginManager().registerEvents(listener, this);
     }
 
     @Override

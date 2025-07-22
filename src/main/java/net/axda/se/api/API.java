@@ -1,18 +1,18 @@
 package net.axda.se.api;
 
 import cn.nukkit.Server;
-import net.axda.se.Engine;
+import net.axda.se.ScriptEngine;
 
 public class API {
 
-    protected Engine engine;
+    protected ScriptEngine engine;
 
-    public API setEngine(Engine engine) {
+    public API setEngine(ScriptEngine engine) {
         this.engine = engine;
         return this;
     }
 
-    public Engine getEngine() {
+    public ScriptEngine getEngine() {
         return engine;
     }
 

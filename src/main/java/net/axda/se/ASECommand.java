@@ -29,10 +29,10 @@ public class ASECommand extends Command {
 
     public void ls(CommandSender sender) {
         ScriptLoader loader = ScriptLoader.getInstance();
-        Collection<Engine> engines = loader.getScriptMap().values();
+        Collection<ScriptEngine> engines = loader.getScriptMap().values();
         StringBuilder sb = new StringBuilder();
         sb.append("Script Plugins (").append(engines.size()).append("):");
-        for (Engine engine : loader.getScriptMap().values()) {
+        for (ScriptEngine engine : loader.getScriptMap().values()) {
             sb.append(" ").append(engine.getDescription().getName()).append(" v")
                     .append(engine.getDescription().getVersionStr())
                     .append(",");

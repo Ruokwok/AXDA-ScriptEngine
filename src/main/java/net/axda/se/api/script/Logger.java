@@ -22,32 +22,32 @@ public class Logger extends API {
     private cn.nukkit.utils.Logger logger = Server.getInstance().getLogger();
 
     @HostAccess.Export
-    public void log(String... data) {
+    public void log(Object... data) {
         print(ScriptLogLevel.STD, data);
     }
 
     @HostAccess.Export
-    public void debug(String... data) {
+    public void debug(Object... data) {
         print(ScriptLogLevel.DEBUG, data);
     }
 
     @HostAccess.Export
-    public void info(String... data) {
+    public void info(Object... data) {
         print(ScriptLogLevel.INFO, data);
     }
 
     @HostAccess.Export
-    public void warn(String... data) {
+    public void warn(Object... data) {
         print(ScriptLogLevel.WARN, data);
     }
 
     @HostAccess.Export
-    public void error(String... data) {
+    public void error(Object... data) {
         print(ScriptLogLevel.ERROR, data);
     }
 
     @HostAccess.Export
-    public void fatal(String... data) {
+    public void fatal(Object... data) {
         print(ScriptLogLevel.FATAL, data);
     }
 
@@ -101,10 +101,10 @@ public class Logger extends API {
         return builder;
     }
 
-    private String getContent(String[] data) {
+    private String getContent(Object[] data) {
         StringBuilder sb = getStringBuilder();
-        for (String s : data) {
-            sb.append(s);
+        for (Object s : data) {
+            sb.append(s.toString());
         }
         return sb.toString();
     }
@@ -115,7 +115,7 @@ public class Logger extends API {
         return now.format(formatter);
     }
 
-    private void print(ScriptLogLevel level, String[] str) {
+    private void print(ScriptLogLevel level, Object[] str) {
         String text = getContent(str);
         if (consoleLevel >= level.getValue()) {
             logger.log(level.getLevel(), text);
@@ -137,7 +137,7 @@ public class Logger extends API {
 
     public enum ScriptLogLevel {
 
-        STD(-1, null),
+        STD(-1, LogLevel.INFO),
         SLIENT(0, LogLevel.NONE),
         FATAL(1, LogLevel.CRITICAL),
         ERROR(2, LogLevel.ERROR),

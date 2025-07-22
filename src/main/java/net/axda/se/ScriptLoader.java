@@ -1,16 +1,16 @@
 package net.axda.se;
 
+import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.utils.LogLevel;
 import cn.nukkit.utils.Logger;
 import cn.nukkit.utils.Utils;
+import net.axda.se.api.game.ScriptPlayer;
 import net.axda.se.api.script.LL;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Map;
+import java.util.*;
 
 public class ScriptLoader {
 
@@ -18,7 +18,8 @@ public class ScriptLoader {
     private Logger logger;
     private String runtime;
     private LL ll;
-    private Hashtable<String, Engine> engines = new Hashtable<>();
+    private Hashtable<String, ScriptEngine> engines = new Hashtable<>();
+    private Hashtable<Player, ScriptPlayer> players = new Hashtable<>();
 
     public static ScriptLoader getInstance() {
         return loader;
@@ -56,7 +57,7 @@ public class ScriptLoader {
 
     public void loadPlugin(String script) {
         try {
-            Engine engine = new Engine(script);
+            ScriptEngine engine = new ScriptEngine(script);
             engine.execute();
             engines.put(engine.getDescription().getName(), engine);
             logger.info("Loaded " + engine.getDescription().getName() + " v" + engine.getDescription().getVersionStr());
@@ -66,16 +67,16 @@ public class ScriptLoader {
     }
 
     public void disablePlugins() {
-        for (Engine engine : engines.values()) {
-            engine.stop();
+        for (ScriptEngine engine : engines.values()) {
+            engine.disable();
         }
         engines.clear();
     }
 
     public void disablePlugin(String name) {
-        Engine engine = engines.get(name);
+        ScriptEngine engine = engines.get(name);
         if (engine != null) {
-            engine.stop();
+            engine.disable();
             engines.remove(name);
         }
     }
@@ -88,7 +89,23 @@ public class ScriptLoader {
         return ll;
     }
 
-    public Map<String, Engine> getScriptMap() {
+    public Map<String, ScriptEngine> getScriptMap() {
         return new HashMap<>(engines);
+    }
+
+    public void putPlayer(Player player) {
+        players.put(player, new ScriptPlayer(player));
+    }
+
+    public ScriptPlayer getPlayer(Player player) {
+        return players.get(player);
+    }
+
+    public void removePlayer(Player player) {
+        players.remove(player);
+    }
+
+    public List<ScriptPlayer> getOnlinePlayers() {
+        return new ArrayList<>(players.values());
     }
 }

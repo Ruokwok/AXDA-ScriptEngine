@@ -77,4 +77,15 @@ public class MC extends API {
         return ScriptLoader.getInstance().getOnlinePlayers();
     }
 
+    @HostAccess.Export
+    public boolean broadcast(String msg, int type) {
+        server.broadcastMessage(msg);
+        return true;
+    }
+
+    @HostAccess.Export
+    public boolean broadcast(String msg) {
+        return broadcast(msg, 0);
+    }
+
 }

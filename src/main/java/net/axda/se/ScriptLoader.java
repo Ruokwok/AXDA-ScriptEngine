@@ -20,6 +20,7 @@ public class ScriptLoader {
     private LL ll;
     private Hashtable<String, ScriptEngine> engines = new Hashtable<>();
     private Hashtable<Player, ScriptPlayer> players = new Hashtable<>();
+    private int counter = 0;
 
     public static ScriptLoader getInstance() {
         return loader;
@@ -49,18 +50,22 @@ public class ScriptLoader {
     public void loadPlugin(File file) {
         try {
             String script = Utils.readFile(file);
-            loadPlugin(script);
+            loadPlugin(script, file);
         } catch (IOException e) {
-            logger.log(LogLevel.ERROR, "读取失败: " + file.getName(), e);
+            logger.log(LogLevel.ERROR, "Read file failed: " + file.getName(), e);
         }
     }
 
     public void loadPlugin(String script) {
+        loadPlugin(script, null);
+    }
+
+    public void loadPlugin(String script, File file) {
         try {
-            ScriptEngine engine = new ScriptEngine(script);
+            ScriptEngine engine = new ScriptEngine(script, file, counter);
+            counter++;
             engine.execute();
             engines.put(engine.getDescription().getName(), engine);
-            logger.info("Loaded " + engine.getDescription().getName() + " v" + engine.getDescription().getVersionStr());
         } catch (Throwable t) {
             t.printStackTrace();
         }

@@ -1,6 +1,7 @@
 package net.axda.se;
 
 import cn.nukkit.Server;
+import cn.nukkit.scheduler.AsyncTask;
 import net.axda.se.api.data.KVDatabase;
 import net.axda.se.api.function.LogFunction;
 import net.axda.se.api.function.SetIntervalFunction;
@@ -11,6 +12,8 @@ import net.axda.se.api.system.ScriptFileUtils;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Value;
 
+import java.io.Closeable;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,10 +26,14 @@ public class ScriptEngine {
     private ScriptDescription description;
     private Map<String, Value> listeners = new HashMap<>();
     private List<Integer> tasks = new ArrayList<>();
+    private List<Closeable> closeables = new ArrayList<>();
+    private AsyncTask scriptTask;
+    private int threadId;
 
-    public ScriptEngine(String script) {
+    public ScriptEngine(String script, File file, int threadId) {
         ScriptLoader loader = ScriptLoader.getInstance();
         this.SCRIPT = script;
+        this.threadId = threadId;
         this.context = Context.newBuilder("js")
                 .allowAllAccess(false).build();
         Value js = this.context.getBindings("js");
@@ -39,10 +46,20 @@ public class ScriptEngine {
         js.putMember("setInterval", new SetIntervalFunction().setEngine(this));
         this.context.eval("js", loader.getRuntime());
         this.description = new ScriptDescription();
+        this.description.setFile(file);
     }
 
     public void execute() {
-        this.context.eval("js", SCRIPT);
+        ScriptEngine engine = this;
+        this.scriptTask = new AsyncTask() {
+            @Override
+            public void onRun() {
+                Thread.currentThread().setName(getThreadName());
+                context.eval("js", SCRIPT);
+                Server.getInstance().getLogger().info("Loaded " + engine.getDescription().getName() + " v" + engine.getDescription().getVersionStr());
+            }
+        };
+        Server.getInstance().getScheduler().scheduleAsyncTask(AXDAScriptEngine.getPlugin(), scriptTask);
     }
 
     public void disable() {
@@ -51,6 +68,16 @@ public class ScriptEngine {
             Server.getInstance().getScheduler().cancelTask(taskId);
         }
         tasks.clear();
+        for (Closeable closeable: closeables) {
+            try {
+                closeable.close();
+            } catch (Exception e) {
+                Server.getInstance().getLogger().logException(e);
+            }
+        }
+        closeables.clear();
+        Server.getInstance().getScheduler().cancelTask(scriptTask.getTaskId());
+        Server.getInstance().getLogger().info("Unloaded " + getDescription().getName() + " v" + getDescription().getVersionStr());
     }
 
     public void registerEvent(String event, Value callback) {
@@ -69,6 +96,18 @@ public class ScriptEngine {
 
     public Context getContext() {
         return context;
+    }
+
+    public void putCloseable(Closeable closeable) {
+        closeables.add(closeable);
+    }
+
+    public String getThreadName() {
+        return "Script-" + getDescription().getName() + "-" + threadId;
+    }
+
+    public AsyncTask getTask() {
+        return this.scriptTask;
     }
 
 }

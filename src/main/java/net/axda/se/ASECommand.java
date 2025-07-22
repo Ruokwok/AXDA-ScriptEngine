@@ -24,6 +24,7 @@ public class ASECommand extends Command {
     }
 
     public void reload() {
+        ScriptLoader.getInstance().disablePlugins();
         ScriptLoader.getInstance().loadPlugins(AXDAScriptEngine.PLUGIN_PATH);
     }
 

@@ -1,5 +1,6 @@
 package net.axda.se;
 
+import java.io.File;
 import java.util.Map;
 
 public class ScriptDescription {
@@ -9,12 +10,14 @@ public class ScriptDescription {
     private Object[] version;
     private String versionStr;
     private Map<String, Object> others;
+    private File file;
 
     public String getVersionStr() {
         return versionStr;
     }
 
     public String getName() {
+        if (this.name == null) return file.getName();
         return name;
     }
 
@@ -55,5 +58,13 @@ public class ScriptDescription {
 
     public void setOthers(Map<String, Object> info) {
         this.others = info;
+    }
+
+    public File getFile() {
+        return file;
+    }
+
+    public void setFile(File file) {
+        this.file = file;
     }
 }

@@ -1,6 +1,7 @@
 package net.axda.se.api.data;
 
 import cn.nukkit.Server;
+import net.axda.se.ScriptLoader;
 import net.axda.se.api.API;
 import org.apache.commons.io.FileUtils;
 import org.graalvm.polyglot.HostAccess;
@@ -9,16 +10,16 @@ import org.iq80.leveldb.Options;
 import org.iq80.leveldb.impl.Iq80DBFactory;
 
 import java.io.*;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-public class KVDatabase extends API implements AutoCloseable{
+public class KVDatabase extends API implements Closeable {
 
     private DB db;
 
     @HostAccess.Export
     public KVDatabase(String url) {
+        ScriptLoader.getInstance().putCloseable(this);
         try {
             File file = new File(url);
             if (!file.exists()) {
@@ -33,6 +34,7 @@ public class KVDatabase extends API implements AutoCloseable{
     }
 
     @HostAccess.Export
+    @Override
     public void close() throws IOException {
         this.db.close();
     }

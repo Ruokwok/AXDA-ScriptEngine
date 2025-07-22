@@ -8,6 +8,7 @@ import cn.nukkit.utils.Utils;
 import net.axda.se.api.game.ScriptPlayer;
 import net.axda.se.api.script.LL;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
@@ -65,7 +66,7 @@ public class ScriptLoader {
             ScriptEngine engine = new ScriptEngine(script, file, counter);
             counter++;
             engine.execute();
-            engines.put(engine.getDescription().getName(), engine);
+            engines.put(engine.getThreadName(), engine);
         } catch (Throwable t) {
             t.printStackTrace();
         }
@@ -78,11 +79,10 @@ public class ScriptLoader {
         engines.clear();
     }
 
-    public void disablePlugin(String name) {
-        ScriptEngine engine = engines.get(name);
+    public void disablePlugin(ScriptEngine engine) {
         if (engine != null) {
             engine.disable();
-            engines.remove(name);
+            engines.remove(engine.getThreadName());
         }
     }
 
@@ -112,5 +112,13 @@ public class ScriptLoader {
 
     public List<ScriptPlayer> getOnlinePlayers() {
         return new ArrayList<>(players.values());
+    }
+
+    public void putCloseable(Closeable c) {
+        String threadName = Thread.currentThread().getName();
+        ScriptEngine engine = engines.get(threadName);
+        if (engine != null) {
+            engine.putCloseable(c);
+        }
     }
 }

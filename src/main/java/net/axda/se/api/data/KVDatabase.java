@@ -1,0 +1,90 @@
+package net.axda.se.api.data;
+
+import cn.nukkit.Server;
+import net.axda.se.api.API;
+import org.apache.commons.io.FileUtils;
+import org.graalvm.polyglot.HostAccess;
+import org.iq80.leveldb.DB;
+import org.iq80.leveldb.Options;
+import org.iq80.leveldb.impl.Iq80DBFactory;
+
+import java.io.*;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
+
+public class KVDatabase extends API implements AutoCloseable{
+
+    private DB db;
+
+    @HostAccess.Export
+    public KVDatabase(String url) {
+        try {
+            File file = new File(url);
+            if (!file.exists()) {
+                FileUtils.createParentDirectories(file);
+                file.createNewFile();
+            }
+            Iq80DBFactory factory = new Iq80DBFactory();
+            this.db = factory.open(file, new Options().createIfMissing(true));
+        } catch (Exception e) {
+            Server.getInstance().getLogger().error(e.getMessage(), e);
+        }
+    }
+
+    @HostAccess.Export
+    public void close() throws IOException {
+        this.db.close();
+    }
+
+    @HostAccess.Export
+    public void set(String key, Object value) {
+        try {
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            ObjectOutputStream oos = new ObjectOutputStream(bos);
+            oos.writeObject(value);
+            oos.flush();
+            byte[] bytes = bos.toByteArray();
+            this.db.put(key.getBytes(), bytes);
+        } catch (IOException e) {
+            Server.getInstance().getLogger().error("Failed to serialize object for key: " + key, e);
+        }
+    }
+
+    @HostAccess.Export
+    public Object get(String key) {
+        byte[] bytes = this.db.get(key.getBytes());
+        if (bytes == null) {
+            return null;
+        }
+        try {
+            ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
+            ObjectInputStream ois = new ObjectInputStream(bis);
+            Object o = ois.readObject();
+            return o;
+        } catch (IOException | ClassNotFoundException e) {
+            Server.getInstance().getLogger().error("Failed to deserialize object for key: " + key, e);
+            return null;
+        }
+    }
+
+    @HostAccess.Export
+    public void delete(String key) {
+        this.db.delete(key.getBytes());
+    }
+
+    @HostAccess.Export
+    public List<String> listKey() {
+        List<String> keys = new ArrayList<>();
+        try (var iterator = db.iterator()) {
+            for (iterator.seekToFirst(); iterator.hasNext(); iterator.next()) {
+                byte[] keyBytes = iterator.peekNext().getKey();
+                String key = new String(keyBytes);
+                keys.add(key);
+            }
+        } catch (IOException e) {
+            Server.getInstance().getLogger().error("Failed to list all keys", e);
+        }
+        return keys;
+    }
+}

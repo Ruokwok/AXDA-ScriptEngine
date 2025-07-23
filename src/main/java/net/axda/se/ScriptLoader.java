@@ -2,6 +2,8 @@ package net.axda.se;
 
 import cn.nukkit.Player;
 import cn.nukkit.Server;
+import cn.nukkit.scheduler.AsyncTask;
+import cn.nukkit.scheduler.TaskHandler;
 import cn.nukkit.utils.LogLevel;
 import cn.nukkit.utils.Logger;
 import cn.nukkit.utils.Utils;
@@ -63,10 +65,17 @@ public class ScriptLoader {
 
     public void loadPlugin(String script, File file) {
         try {
-            ScriptEngine engine = new ScriptEngine(script, file, counter);
-            counter++;
-            engine.execute();
-            engines.put(engine.getThreadName(), engine);
+            AsyncTask task = new AsyncTask() {
+                @Override
+                public void onRun() {
+                    ScriptEngine engine = new ScriptEngine(script, file, counter);
+                    counter++;
+                    engine.execute();
+                    engines.put(engine.getThreadName(), engine);
+                }
+            };
+            TaskHandler taskHandler = Server.getInstance().getScheduler().scheduleAsyncTask(AXDAScriptEngine.getPlugin(), task);
+            task.setTaskId(taskHandler.getTaskId());
         } catch (Throwable t) {
             t.printStackTrace();
         }

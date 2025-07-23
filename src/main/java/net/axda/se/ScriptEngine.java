@@ -4,8 +4,10 @@ import cn.nukkit.Server;
 import cn.nukkit.scheduler.AsyncTask;
 import cn.nukkit.scheduler.TaskHandler;
 import net.axda.se.api.data.KVDatabase;
+import net.axda.se.api.function.ClearIntervalFunction;
 import net.axda.se.api.function.LogFunction;
 import net.axda.se.api.function.SetIntervalFunction;
+import net.axda.se.api.function.SetTimeoutFunction;
 import net.axda.se.api.game.MC;
 import net.axda.se.api.script.LL;
 import net.axda.se.api.script.Logger;
@@ -32,11 +34,17 @@ public class ScriptEngine {
     private int threadId;
 
     public ScriptEngine(String script, File file, int threadId) {
-        ScriptLoader loader = ScriptLoader.getInstance();
+        Thread.currentThread().setName(getThreadName());
         this.SCRIPT = script;
         this.threadId = threadId;
         this.context = Context.newBuilder("js")
                 .allowAllAccess(false).build();
+        registerAPI();
+        this.description = new ScriptDescription();
+        this.description.setFile(file);
+    }
+
+    public void registerAPI() {
         Value js = this.context.getBindings("js");
         js.putMember("ll", new LL().setEngine(this));
         js.putMember("logger", new Logger().setEngine(this));
@@ -45,23 +53,16 @@ public class ScriptEngine {
         js.putMember("mc", new MC().setEngine(this));
         js.putMember("log", new LogFunction().setEngine(this));
         js.putMember("setInterval", new SetIntervalFunction().setEngine(this));
-        this.context.eval("js", loader.getRuntime());
-        this.description = new ScriptDescription();
-        this.description.setFile(file);
+        js.putMember("setTimeout", new SetTimeoutFunction().setEngine(this));
+        js.putMember("clearInterval", new ClearIntervalFunction().setEngine(this));
     }
 
     public void execute() {
-        ScriptEngine engine = this;
-        this.scriptTask = new AsyncTask() {
-            @Override
-            public void onRun() {
-                Thread.currentThread().setName(getThreadName());
-                context.eval("js", SCRIPT);
-                Server.getInstance().getLogger().info("Loaded " + engine.getDescription().getName() + " v" + engine.getDescription().getVersionStr());
-            }
-        };
-        TaskHandler taskHandler = Server.getInstance().getScheduler().scheduleAsyncTask(AXDAScriptEngine.getPlugin(), scriptTask);
-        scriptTask.setTaskId(taskHandler.getTaskId());
+        context.enter();
+        context.eval("js", ScriptLoader.getInstance().getRuntime());
+        context.eval("js", SCRIPT);
+        context.leave();
+        Server.getInstance().getLogger().info("Loaded " + getDescription().getName() + " v" + getDescription().getVersionStr());
     }
 
     public void disable() {

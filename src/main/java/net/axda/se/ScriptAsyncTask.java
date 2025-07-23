@@ -7,18 +7,26 @@ import java.io.Closeable;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class ScriptRepeatingTask extends AsyncTask implements Closeable {
+public class ScriptAsyncTask extends AsyncTask implements Closeable {
 
     private Value value;
     private int interval;
     private Timer timer;
     private ScriptEngine engine;
+    private boolean type;
 
-    public ScriptRepeatingTask(Value value, int interval, ScriptEngine engine) {
+    /**
+     * @param value
+     * @param interval
+     * @param engine
+     * @param type true 为循环任务，false 为延时任务
+     */
+    public ScriptAsyncTask(Value value, int interval, ScriptEngine engine, boolean type) {
         super();
         this.value = value;
         this.interval = interval;
         this.engine = engine;
+        this.type = type;
         this.timer = new Timer();
     }
 
@@ -31,17 +39,23 @@ public class ScriptRepeatingTask extends AsyncTask implements Closeable {
             public void run() {
                 Thread.currentThread().setName("jst-" + getTaskId());
                 try {
+                    engine.getContext().enter();
                     if (value.isString()) {
                         engine.getContext().eval("js", value.asString());
                     } else {
                         value.executeVoid();
                     }
+                    engine.getContext().leave();
                 } catch (Throwable t) {
                     t.printStackTrace();
                 }
             }
         };
-        timer.schedule(task, 0, interval);
+        if (type) {
+            timer.schedule(task, 0, interval);
+        } else {
+            timer.schedule(task, interval);
+        }
     }
 
     @Override

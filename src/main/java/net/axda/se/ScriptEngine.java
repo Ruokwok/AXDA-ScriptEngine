@@ -103,7 +103,7 @@ public class ScriptEngine {
     }
 
     public String getThreadName() {
-        return "Script-" + getDescription().getName() + "-" + threadId;
+        return "js-" + threadId;
     }
 
     public AsyncTask getTask() {

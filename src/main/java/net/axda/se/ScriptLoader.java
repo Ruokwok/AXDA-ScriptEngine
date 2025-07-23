@@ -121,4 +121,8 @@ public class ScriptLoader {
             engine.putCloseable(c);
         }
     }
+
+    public ScriptEngine getEngine(String threadName) {
+        return engines.get(threadName);
+    }
 }

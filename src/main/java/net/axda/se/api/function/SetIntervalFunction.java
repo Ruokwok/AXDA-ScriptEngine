@@ -12,7 +12,7 @@ public class SetIntervalFunction extends Function  {
     public Object execute(Value... arguments) {
         if (arguments.length != 2) return null;
         int msec = arguments[1].asInt();
-        ScriptRepeatingTask task = new ScriptRepeatingTask(arguments[0], msec);
+        ScriptRepeatingTask task = new ScriptRepeatingTask(arguments[0], msec, engine);
         TaskHandler taskHandler = Server.getInstance().getScheduler()
                 .scheduleAsyncTask(AXDAScriptEngine.getPlugin(), task);
         task.setTaskId(taskHandler.getTaskId());

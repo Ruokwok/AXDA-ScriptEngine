@@ -12,23 +12,30 @@ public class ScriptRepeatingTask extends AsyncTask implements Closeable {
     private Value value;
     private int interval;
     private Timer timer;
+    private ScriptEngine engine;
 
-    public ScriptRepeatingTask(Value value, int interval) {
+    public ScriptRepeatingTask(Value value, int interval, ScriptEngine engine) {
         super();
         this.value = value;
         this.interval = interval;
+        this.engine = engine;
         this.timer = new Timer();
     }
 
     @Override
     public void onRun() {
         if (value == null) return;
+
         TimerTask task = new TimerTask() {
             @Override
             public void run() {
                 Thread.currentThread().setName("jst-" + getTaskId());
                 try {
-                    value.executeVoid();
+                    if (value.isString()) {
+                        engine.getContext().eval("js", value.asString());
+                    } else {
+                        value.executeVoid();
+                    }
                 } catch (Throwable t) {
                     t.printStackTrace();
                 }

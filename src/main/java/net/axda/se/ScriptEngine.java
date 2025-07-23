@@ -2,6 +2,7 @@ package net.axda.se;
 
 import cn.nukkit.Server;
 import cn.nukkit.scheduler.AsyncTask;
+import cn.nukkit.scheduler.TaskHandler;
 import net.axda.se.api.data.KVDatabase;
 import net.axda.se.api.function.LogFunction;
 import net.axda.se.api.function.SetIntervalFunction;
@@ -59,7 +60,8 @@ public class ScriptEngine {
                 Server.getInstance().getLogger().info("Loaded " + engine.getDescription().getName() + " v" + engine.getDescription().getVersionStr());
             }
         };
-        Server.getInstance().getScheduler().scheduleAsyncTask(AXDAScriptEngine.getPlugin(), scriptTask);
+        TaskHandler taskHandler = Server.getInstance().getScheduler().scheduleAsyncTask(AXDAScriptEngine.getPlugin(), scriptTask);
+        scriptTask.setTaskId(taskHandler.getTaskId());
     }
 
     public void disable() {

@@ -33,10 +33,11 @@ public class ScriptEngine {
     private AsyncTask scriptTask;
     private int threadId;
 
-    public ScriptEngine(String script, File file, int threadId) {
+    public ScriptEngine(String script, File file, int threadId, AsyncTask scriptTask) {
         Thread.currentThread().setName(getThreadName());
         this.SCRIPT = script;
         this.threadId = threadId;
+        this.scriptTask = scriptTask;
         this.context = Context.newBuilder("js")
                 .allowAllAccess(false).build();
         registerAPI();

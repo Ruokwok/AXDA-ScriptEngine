@@ -68,7 +68,7 @@ public class ScriptLoader {
             AsyncTask task = new AsyncTask() {
                 @Override
                 public void onRun() {
-                    ScriptEngine engine = new ScriptEngine(script, file, counter);
+                    ScriptEngine engine = new ScriptEngine(script, file, counter, this);
                     counter++;
                     engine.execute();
                     engines.put(engine.getThreadName(), engine);

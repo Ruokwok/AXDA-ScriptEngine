@@ -2,6 +2,7 @@ package net.axda.se;
 
 import cn.nukkit.Server;
 import cn.nukkit.plugin.PluginBase;
+import net.axda.se.listen.ListenEvent;
 
 import java.io.File;
 
@@ -21,6 +22,7 @@ public class AXDAScriptEngine extends PluginBase {
     @Override
     public void onEnable() {
         getServer().getCommandMap().register("ase", new ASECommand());
+        ListenEvent.getAllEvents();
         listener = new ScriptListener();
         ScriptLoader.init();
         ScriptLoader.getInstance().loadPlugins(PLUGIN_PATH);

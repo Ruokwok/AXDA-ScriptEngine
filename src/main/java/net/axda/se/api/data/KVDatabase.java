@@ -5,6 +5,7 @@ import net.axda.se.ScriptLoader;
 import net.axda.se.api.API;
 import org.apache.commons.io.FileUtils;
 import org.graalvm.polyglot.HostAccess;
+import org.graalvm.polyglot.Value;
 import org.iq80.leveldb.DB;
 import org.iq80.leveldb.Options;
 import org.iq80.leveldb.impl.Iq80DBFactory;
@@ -40,11 +41,13 @@ public class KVDatabase extends API implements Closeable {
     }
 
     @HostAccess.Export
-    public void set(String key, Object value) {
+    public void set(String key, Value value) {
+        if (key == null) return;
+        Object obj = value.toString();
         try {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             ObjectOutputStream oos = new ObjectOutputStream(bos);
-            oos.writeObject(value);
+            oos.writeObject(obj);
             oos.flush();
             byte[] bytes = bos.toByteArray();
             this.db.put(key.getBytes(), bytes);
@@ -55,6 +58,7 @@ public class KVDatabase extends API implements Closeable {
 
     @HostAccess.Export
     public Object get(String key) {
+        if (key == null) return null;
         byte[] bytes = this.db.get(key.getBytes());
         if (bytes == null) {
             return null;

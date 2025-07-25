@@ -22,4 +22,18 @@ public class ListenMap {
         return false;
     }
 
+    public static void remove(ScriptEngine engine) {
+        map.remove(engine);
+    }
+
+    public static boolean call(String event, Object... args) {
+        boolean b = true;
+        for (ConcurrentHashMap<String, Listen> listenMap : map.values()) {
+            if (listenMap.containsKey(event)) {
+                b = listenMap.get(event).callEvent(args);
+            }
+        }
+        return b;
+    }
+
 }

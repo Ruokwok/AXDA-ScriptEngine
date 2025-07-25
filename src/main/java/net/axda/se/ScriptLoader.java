@@ -107,8 +107,10 @@ public class ScriptLoader {
         return new HashMap<>(engines);
     }
 
-    public void putPlayer(Player player) {
-        players.put(player, new ScriptPlayer(player));
+    public ScriptPlayer putPlayer(Player player) {
+        ScriptPlayer scriptPlayer = new ScriptPlayer(player);
+        players.put(player, scriptPlayer);
+        return scriptPlayer;
     }
 
     public ScriptPlayer getPlayer(Player player) {

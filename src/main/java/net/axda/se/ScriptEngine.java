@@ -12,7 +12,9 @@ import net.axda.se.api.game.MC;
 import net.axda.se.api.script.LL;
 import net.axda.se.api.script.Logger;
 import net.axda.se.api.system.ScriptFileUtils;
+import net.axda.se.listen.ListenMap;
 import org.graalvm.polyglot.Context;
+import org.graalvm.polyglot.HostAccess;
 import org.graalvm.polyglot.Value;
 
 import java.io.Closeable;
@@ -39,7 +41,9 @@ public class ScriptEngine {
         this.SCRIPT = script;
         this.scriptTask = scriptTask;
         this.context = Context.newBuilder("js")
-                .allowAllAccess(true)
+                .allowAllAccess(false)
+                .allowHostAccess(HostAccess.ALL)
+                .allowCreateThread(true)
                 .build();
         registerAPI();
         this.description = new ScriptDescription();
@@ -69,6 +73,7 @@ public class ScriptEngine {
 
     public void disable() {
         this.context.close();
+        ListenMap.remove(this);
         for (int taskId: tasks) {
             Server.getInstance().getScheduler().cancelTask(taskId);
         }

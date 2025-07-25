@@ -1,125 +1,16 @@
 package net.axda.se.api.game;
 
 import cn.nukkit.Player;
+import cn.nukkit.Server;
 import net.axda.se.api.API;
 import org.graalvm.polyglot.HostAccess;
+import org.graalvm.polyglot.Value;
+import org.graalvm.polyglot.proxy.ProxyExecutable;
+import org.graalvm.polyglot.proxy.ProxyObject;
 
-public class ScriptPlayer extends API {
+public class ScriptPlayer extends API implements ProxyObject {
 
     private Player player;
-
-    @HostAccess.Export
-    public final String name;
-
-    public Object pos;
-
-    public Object feelPos;
-
-    public Object blockPos;
-
-    public Object lastDeathPos;
-
-    public String realName;
-
-    public String xuid;
-
-    public String uuid;
-
-    public int permLevel;
-
-    public int gameMode;
-
-    public boolean canFly;
-
-    public boolean canSleep;
-
-    public boolean canBeSeenOnMap;
-
-    public boolean canFreeze;
-
-    public boolean canSeeDaylight;
-
-    public boolean canShowNameTag;
-
-    public boolean canStartSleepInBed;
-
-    public boolean canPickupItems;
-
-    public int maxHealth;
-
-    public int health;
-
-    public boolean inAir;
-
-    public boolean inWater;
-
-    public boolean inLava;
-
-    public boolean inRain;
-
-    public boolean inSnow;
-
-    public boolean inWall;
-
-    public boolean inWaterOrRain;
-
-    public boolean inWorld;
-
-    public boolean inClouds;
-
-    public float speed;
-
-    public Object direction;
-
-    public String uniqueId;
-
-    public String runtimeId;
-
-    public String langCode;
-
-    public boolean isLoading;
-
-    public boolean isInvisible;
-
-    public boolean isInsidePortal;
-
-    public boolean isHurt;
-
-    public boolean isTrusting = false;
-
-    public boolean isTouchingDamageBlock;
-
-    public boolean isHungry;
-
-    public boolean isOnFire;
-
-    public boolean isOnGround;
-
-    public boolean isOnHotBlock;
-
-    public boolean isTrading;
-
-    public boolean isAdventure;
-
-    public boolean isGliding;
-
-    public boolean isSurvival;
-
-    public boolean isSpectator;
-
-    public boolean isRiding;
-
-    public boolean isDancing;
-
-    public boolean isCreative;
-
-    public boolean isFlying;
-
-    public boolean isSleeping;
-
-    public boolean isMoving;
-
-    public boolean isSneaking;
 
     @HostAccess.Export
     public boolean isOP() {
@@ -137,13 +28,22 @@ public class ScriptPlayer extends API {
     }
 
     @HostAccess.Export
-    public boolean tell(String msg) {
+    public boolean tell(Value... args) {
+        if (args.length < 1) return false;
+        try {
+            String msg = args[0].asString();
+            int type = (args.length < 2)? 0: args[1].asInt();
+            switch (type) {
+                case 0: player.sendMessage(msg); return true;
+                case 1: player.chat(msg); return true;
+                case 4: player.sendPopup(msg); return true;
+                case 5: player.sendTip(msg); return true;
+                default: return false;
+            }
+        } catch (Exception e) {
+            Server.getInstance().getLogger().logException(e);
+        }
         return false;
-    }
-
-    @HostAccess.Export
-    public boolean sendText(String msg) {
-        return tell(msg);
     }
 
     @HostAccess.Export
@@ -434,12 +334,35 @@ public class ScriptPlayer extends API {
 
     public ScriptPlayer(Player player) {
         this.player = player;
-        this.name = player.getName();
-
     }
 
     public Player getNukkitPlayer() {
         return player;
     }
 
+    @Override
+    public Object getMember(String key) {
+        switch (key) {
+            case "name": return player.getName();
+            case "realName": return player.getLoginChainData().getUsername();
+            case "xuid": return player.getLoginChainData().getXUID();
+            case "tell": return (ProxyExecutable) this::tell;
+        }
+        return null;
+    }
+
+    @Override
+    public Object getMemberKeys() {
+        return null;
+    }
+
+    @Override
+    public boolean hasMember(String key) {
+        return true;
+    }
+
+    @Override
+    public void putMember(String key, Value value) {
+
+    }
 }

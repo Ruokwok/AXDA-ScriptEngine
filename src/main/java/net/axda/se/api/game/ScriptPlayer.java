@@ -1,7 +1,7 @@
 package net.axda.se.api.game;
 
 import cn.nukkit.Player;
-import cn.nukkit.Server;
+import net.axda.se.exception.ValueTypeException;
 import net.axda.se.api.API;
 import org.graalvm.polyglot.HostAccess;
 import org.graalvm.polyglot.Value;
@@ -13,42 +13,61 @@ public class ScriptPlayer extends API implements ProxyObject {
     private Player player;
 
     @HostAccess.Export
-    public boolean isOP() {
+    public boolean isOP(Value... args) {
+        return player.isOp();
+    }
+
+    @HostAccess.Export
+    public boolean kick(Value... args) {
+        if (args.length > 0) {
+            return player.kick(args[0].asString());
+        }
         return false;
     }
 
     @HostAccess.Export
-    public boolean kick(String msg) {
-        return false;
+    public boolean disconnect(Value... args) {
+        return kick(args);
     }
 
     @HostAccess.Export
-    public boolean disconnect(String msg) {
-        return kick(msg);
-    }
-
-    @HostAccess.Export
-    public boolean tell(Value... args) {
+    public boolean tell(Value... args) throws ValueTypeException {
         if (args.length < 1) return false;
         try {
             String msg = args[0].asString();
             int type = (args.length < 2)? 0: args[1].asInt();
             switch (type) {
                 case 0: player.sendMessage(msg); return true;
-                case 1: player.chat(msg); return true;
+                case 1: player.sendChat(msg); return true;
                 case 4: player.sendPopup(msg); return true;
                 case 5: player.sendTip(msg); return true;
                 default: return false;
             }
         } catch (Exception e) {
-            Server.getInstance().getLogger().logException(e);
+            throw new ValueTypeException();
         }
-        return false;
     }
 
     @HostAccess.Export
-    public boolean setTitle(String msg, String type, int fadeInTime, int stayTime, int fadeOutTime) {
-        return false;
+    public boolean setTitle(Value... args) {
+        if (args.length == 0) return false;
+        try {
+            String content = args[0].asString();
+            int type = (args.length <= 2)? 2: args[1].asInt();
+            int fadeInTime = (args.length <= 3)? 10: args[2].asInt();
+            int stayTime = (args.length <= 4)? 70: args[3].asInt();
+            int fadeOutTime = (args.length <= 5)? 20: args[4].asInt();
+            switch (type) {
+                case 0: player.clearTitle(); return true;
+                case 1: return false;
+                case 2: player.sendTitle(content, "", fadeInTime, stayTime, fadeOutTime); return true;
+                case 3: player.sendTitle("", content, fadeInTime, stayTime, fadeOutTime); return true;
+                case 4: player.sendActionBar(content, fadeInTime, stayTime, fadeOutTime); return true;
+                default: return false;
+            }
+        } catch (Exception e) {
+            throw new ValueTypeException();
+        }
     }
 
     @HostAccess.Export
@@ -57,7 +76,12 @@ public class ScriptPlayer extends API implements ProxyObject {
     }
 
     @HostAccess.Export
-    public boolean sendToast(String title, String msg) {
+    public boolean sendToast(Value... args) {
+        try {
+            player.sendToast(args[0].asString(), args[1].asString());
+        } catch (Exception e) {
+            throw new ValueTypeException();
+        }
         return false;
     }
 
@@ -346,7 +370,11 @@ public class ScriptPlayer extends API implements ProxyObject {
             case "name": return player.getName();
             case "realName": return player.getLoginChainData().getUsername();
             case "xuid": return player.getLoginChainData().getXUID();
-            case "tell": return (ProxyExecutable) this::tell;
+            case "tell", "sendText": return (ProxyExecutable) this::tell;
+            case "isOp": return (ProxyExecutable) this::isOP;
+            case "kick", "disconnect": return (ProxyExecutable) this::kick;
+            case "setTitle": return (ProxyExecutable) this::setTitle;
+            case "sendToast": return (ProxyExecutable) this::sendToast;
         }
         return null;
     }

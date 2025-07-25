@@ -9,7 +9,11 @@ public class LogFunction extends Function {
     public Object execute(Value... args) {
         StringBuilder sb = new StringBuilder();
         for (Value arg : args) {
-            sb.append(arg.asString());
+            if (arg.isString()) {
+                sb.append(arg.asString());
+            } else {
+                sb.append(arg);
+            }
         }
         Server.getInstance().getLogger().info(sb.toString());
         return null;

@@ -31,7 +31,7 @@ public class AXDAScriptEngine extends PluginBase {
 
     @Override
     public void onDisable() {
-
+        ScriptLoader.getInstance().disablePlugins();
     }
 
     public int[] getVersion() {

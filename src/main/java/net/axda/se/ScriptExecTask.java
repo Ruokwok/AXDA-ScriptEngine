@@ -1,5 +1,6 @@
 package net.axda.se;
 
+import cn.nukkit.Server;
 import cn.nukkit.scheduler.AsyncTask;
 
 import java.io.File;
@@ -19,8 +20,14 @@ public class ScriptExecTask extends AsyncTask {
 
     @Override
     public void onRun() {
-        this.engine = new ScriptEngine(script, file, threadId, this);
-        ScriptLoader.getInstance().putEngine(this.engine);
-        this.engine.execute();
+        try {
+            this.engine = new ScriptEngine(script, file, threadId, this);
+            ScriptLoader.getInstance().putEngine(this.engine);
+            this.engine.execute();
+        } catch (Exception e) {
+            Server.getInstance().getLogger().logException(e);
+            Server.getInstance().getLogger().error("JavaScript plugin failed to load: " + this.engine.getDescription().getFile().getName());
+            ScriptLoader.getInstance().disablePlugin(engine);
+        }
     }
 }

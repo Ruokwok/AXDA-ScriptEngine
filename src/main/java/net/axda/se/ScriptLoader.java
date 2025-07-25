@@ -67,14 +67,10 @@ public class ScriptLoader {
     }
 
     public void loadPlugin(String script, File file) {
-        try {
-            counter++;
-            ScriptExecTask task = new ScriptExecTask(counter, script, file);
-            TaskHandler taskHandler = Server.getInstance().getScheduler().scheduleAsyncTask(AXDAScriptEngine.getPlugin(), task);
-            task.setTaskId(taskHandler.getTaskId());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        counter++;
+        ScriptExecTask task = new ScriptExecTask(counter, script, file);
+        TaskHandler taskHandler = Server.getInstance().getScheduler().scheduleAsyncTask(AXDAScriptEngine.getPlugin(), task);
+        task.setTaskId(taskHandler.getTaskId());
     }
 
     protected void putEngine(ScriptEngine engine) {

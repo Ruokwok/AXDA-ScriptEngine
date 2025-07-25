@@ -12,6 +12,7 @@ import net.axda.se.api.game.MC;
 import net.axda.se.api.script.LL;
 import net.axda.se.api.script.Logger;
 import net.axda.se.api.system.ScriptFileUtils;
+import net.axda.se.exception.ScriptExecuteException;
 import net.axda.se.listen.ListenMap;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.HostAccess;
@@ -63,12 +64,16 @@ public class ScriptEngine {
         js.putMember("clearInterval", new ClearIntervalFunction().setEngine(this));
     }
 
-    public void execute() {
-        context.enter();
-        context.eval("js", ScriptLoader.getInstance().getRuntime());
-        context.eval("js", SCRIPT);
-        context.leave();
-        Server.getInstance().getLogger().info("Loaded " + getDescription().getName() + " v" + getDescription().getVersionStr());
+    public void execute() throws ScriptExecuteException {
+        try {
+            context.enter();
+            context.eval("js", ScriptLoader.getInstance().getRuntime());
+            context.eval("js", SCRIPT);
+            context.leave();
+            Server.getInstance().getLogger().info("Loaded " + getDescription().getName() + " v" + getDescription().getVersionStr());
+        } catch (Exception e) {
+            throw new ScriptExecuteException(e, getDescription().getFile().getPath());
+        }
     }
 
     public void disable() {

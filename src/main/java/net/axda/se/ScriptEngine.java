@@ -34,12 +34,13 @@ public class ScriptEngine {
     private int threadId;
 
     public ScriptEngine(String script, File file, int threadId, AsyncTask scriptTask) {
+        this.threadId = threadId;
         Thread.currentThread().setName(getThreadName());
         this.SCRIPT = script;
-        this.threadId = threadId;
         this.scriptTask = scriptTask;
         this.context = Context.newBuilder("js")
-                .allowAllAccess(false).build();
+                .allowAllAccess(true)
+                .build();
         registerAPI();
         this.description = new ScriptDescription();
         this.description.setFile(file);

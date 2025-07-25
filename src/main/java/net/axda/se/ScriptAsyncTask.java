@@ -37,7 +37,7 @@ public class ScriptAsyncTask extends AsyncTask implements Closeable {
         TimerTask task = new TimerTask() {
             @Override
             public void run() {
-                Thread.currentThread().setName("jst-" + getTaskId());
+                Thread.currentThread().setName(engine.getThreadName() + "/" + getTaskId());
                 try {
                     engine.getContext().enter();
                     if (value.isString()) {

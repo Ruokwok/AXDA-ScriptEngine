@@ -23,7 +23,10 @@ public class ScriptLoader {
     private LL ll;
     private Hashtable<String, ScriptEngine> engines = new Hashtable<>();
     private Hashtable<Player, ScriptPlayer> players = new Hashtable<>();
-    private int counter = 0;
+    private int counter = -1;
+
+    private ScriptLoader() {
+    }
 
     public static ScriptLoader getInstance() {
         return loader;
@@ -65,20 +68,17 @@ public class ScriptLoader {
 
     public void loadPlugin(String script, File file) {
         try {
-            AsyncTask task = new AsyncTask() {
-                @Override
-                public void onRun() {
-                    ScriptEngine engine = new ScriptEngine(script, file, counter, this);
-                    counter++;
-                    engine.execute();
-                    engines.put(engine.getThreadName(), engine);
-                }
-            };
+            counter++;
+            ScriptExecTask task = new ScriptExecTask(counter, script, file);
             TaskHandler taskHandler = Server.getInstance().getScheduler().scheduleAsyncTask(AXDAScriptEngine.getPlugin(), task);
             task.setTaskId(taskHandler.getTaskId());
-        } catch (Throwable t) {
-            t.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+    }
+
+    protected void putEngine(ScriptEngine engine) {
+        engines.put(engine.getThreadName(), engine);
     }
 
     public void disablePlugins() {
@@ -125,9 +125,15 @@ public class ScriptLoader {
 
     public void putCloseable(Closeable c) {
         String threadName = Thread.currentThread().getName();
-        ScriptEngine engine = engines.get(threadName);
-        if (engine != null) {
-            engine.putCloseable(c);
+        if (threadName.startsWith("js-")) {
+            ScriptEngine engine = engines.get(threadName);
+            if (engine == null) {
+                String[] split = threadName.split("/");
+                if (split.length == 2 && split[0].startsWith("js-")) {
+                    engine = engines.get(split[0]);
+                }
+            }
+            if (engine != null) engine.putCloseable(c);
         }
     }
 

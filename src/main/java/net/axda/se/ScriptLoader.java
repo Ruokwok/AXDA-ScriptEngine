@@ -114,7 +114,13 @@ public class ScriptLoader {
     }
 
     public ScriptPlayer getPlayer(Player player) {
-        return players.get(player);
+        if (players.contains(player)) {
+            return players.get(player);
+        } else {
+            ScriptPlayer sp = new ScriptPlayer(player);
+            players.put(player, sp);
+            return sp;
+        }
     }
 
     public void removePlayer(Player player) {

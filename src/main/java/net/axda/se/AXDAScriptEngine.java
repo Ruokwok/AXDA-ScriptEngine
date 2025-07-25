@@ -23,9 +23,9 @@ public class AXDAScriptEngine extends PluginBase {
     public void onEnable() {
         getServer().getCommandMap().register("ase", new ASECommand());
         ListenEvent.getAllEvents();
-        listener = new ScriptListener();
         ScriptLoader.init();
         ScriptLoader.getInstance().loadPlugins(PLUGIN_PATH);
+        listener = new ScriptListener();
         getServer().getPluginManager().registerEvents(listener, this);
     }
 

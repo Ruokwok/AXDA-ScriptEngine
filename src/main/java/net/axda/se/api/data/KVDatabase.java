@@ -14,7 +14,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class KVDatabase extends API implements Closeable {
+public class KVDatabase extends API implements AutoCloseable {
 
     private DB db;
 

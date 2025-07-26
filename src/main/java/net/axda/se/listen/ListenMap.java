@@ -8,6 +8,8 @@ public class ListenMap {
 
     private static ConcurrentHashMap<ScriptEngine, ConcurrentHashMap<String, Listen>> map = new ConcurrentHashMap<>();
 
+    public static ScriptEngine execEngine;
+
     public static boolean put(String event, Listen listen) {
         if (ListenEvent.getAllEvents().contains(event)) {
             if (map.containsKey(listen.getEngine())) {
@@ -26,11 +28,14 @@ public class ListenMap {
         map.remove(engine);
     }
 
-    public static boolean call(String event, Object... args) {
+    public static synchronized boolean call(String event, Object... args) {
         boolean b = true;
         for (ConcurrentHashMap<String, Listen> listenMap : map.values()) {
             if (listenMap.containsKey(event)) {
-                b = listenMap.get(event).callEvent(args);
+                Listen listen = listenMap.get(event);
+                execEngine = listen.getEngine();
+                b = listen.callEvent(args);
+                execEngine = null;
             }
         }
         return b;

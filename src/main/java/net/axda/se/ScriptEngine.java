@@ -2,7 +2,6 @@ package net.axda.se;
 
 import cn.nukkit.Server;
 import cn.nukkit.scheduler.AsyncTask;
-import cn.nukkit.scheduler.TaskHandler;
 import net.axda.se.api.data.KVDatabase;
 import net.axda.se.api.function.ClearIntervalFunction;
 import net.axda.se.api.function.LogFunction;
@@ -18,7 +17,6 @@ import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.HostAccess;
 import org.graalvm.polyglot.Value;
 
-import java.io.Closeable;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,7 +30,7 @@ public class ScriptEngine {
     private ScriptDescription description;
     private Map<String, Value> listeners = new HashMap<>();
     private List<Integer> tasks = new ArrayList<>();
-    private List<Closeable> closeables = new ArrayList<>();
+    private List<AutoCloseable> closeables = new ArrayList<>();
     private AsyncTask scriptTask;
     private int threadId;
 
@@ -83,7 +81,7 @@ public class ScriptEngine {
             Server.getInstance().getScheduler().cancelTask(taskId);
         }
         tasks.clear();
-        for (Closeable closeable: closeables) {
+        for (AutoCloseable closeable: closeables) {
             try {
                 closeable.close();
             } catch (Exception e) {
@@ -113,7 +111,7 @@ public class ScriptEngine {
         return context;
     }
 
-    public void putCloseable(Closeable closeable) {
+    public void putCloseable(AutoCloseable closeable) {
         closeables.add(closeable);
     }
 

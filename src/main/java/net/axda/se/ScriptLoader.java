@@ -9,6 +9,7 @@ import cn.nukkit.utils.Logger;
 import cn.nukkit.utils.Utils;
 import net.axda.se.api.game.ScriptPlayer;
 import net.axda.se.api.script.LL;
+import net.axda.se.listen.ListenMap;
 
 import java.io.Closeable;
 import java.io.File;
@@ -127,7 +128,7 @@ public class ScriptLoader {
         return new ArrayList<>(players.values());
     }
 
-    public void putCloseable(Closeable c) {
+    public void putCloseable(AutoCloseable c) {
         String threadName = Thread.currentThread().getName();
         if (threadName.startsWith("js-")) {
             ScriptEngine engine = engines.get(threadName);
@@ -137,7 +138,11 @@ public class ScriptLoader {
                     engine = engines.get(split[0]);
                 }
             }
-            if (engine != null) engine.putCloseable(c);
+            if (engine != null) {
+                engine.putCloseable(c);
+            }
+        } else if (ListenMap.execEngine != null) {
+            ListenMap.execEngine.putCloseable(c);
         }
     }
 

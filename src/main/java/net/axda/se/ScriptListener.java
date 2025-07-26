@@ -5,6 +5,7 @@ import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.Listener;
 import cn.nukkit.event.player.PlayerEvent;
 import cn.nukkit.event.player.PlayerJoinEvent;
+import cn.nukkit.event.player.PlayerJumpEvent;
 import cn.nukkit.event.player.PlayerPreLoginEvent;
 import net.axda.se.api.game.ScriptPlayer;
 import net.axda.se.listen.ListenEvent;
@@ -26,7 +27,13 @@ public class ScriptListener implements Listener {
 
     @EventHandler
     public void playerQuit(PlayerJoinEvent event) {
+        ListenMap.call(ListenEvent.PlayerOnJoin.getValue(), loader.getPlayer(event.getPlayer()));
         ScriptLoader.getInstance().removePlayer(event.getPlayer());
+    }
+
+    @EventHandler
+    public void playerJump(PlayerJumpEvent event) {
+        ListenMap.call(ListenEvent.PlayerJump.getValue(), loader.getPlayer(event.getPlayer()));
     }
 
 }

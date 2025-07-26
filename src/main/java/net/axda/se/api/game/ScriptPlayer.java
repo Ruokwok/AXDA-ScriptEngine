@@ -86,13 +86,21 @@ public class ScriptPlayer extends API implements ProxyObject {
     }
 
     @HostAccess.Export
-    public boolean runcmd(String cmd) {
-        return false;
+    public boolean runcmd(Value... args) {
+        try {
+            return player.getServer().dispatchCommand(player, args[0].asString());
+        } catch (Exception e) {
+            throw new ValueTypeException();
+        }
     }
 
     @HostAccess.Export
-    public boolean talkAs(String msg) {
-        return false;
+    public boolean talkAs(Value... args) {
+        try {
+            return player.chat(args[0].asString());
+        } catch (Exception e) {
+            throw new ValueTypeException();
+        }
     }
 
     @HostAccess.Export
@@ -375,6 +383,8 @@ public class ScriptPlayer extends API implements ProxyObject {
             case "kick", "disconnect": return (ProxyExecutable) this::kick;
             case "setTitle": return (ProxyExecutable) this::setTitle;
             case "sendToast": return (ProxyExecutable) this::sendToast;
+            case "runcmd": return (ProxyExecutable) this::runcmd;
+            case "talkAs": return (ProxyExecutable) this::talkAs;
         }
         return null;
     }

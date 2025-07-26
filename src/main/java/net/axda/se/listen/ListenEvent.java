@@ -9,6 +9,7 @@ public enum ListenEvent {
     PlayerPreJoin("onPreJoin"),
     PlayerOnJoin("onJoin"),
     PlayerOnLeft("onLeft"),
+    PlayerJump("onJump"),
     ;
 
     private static List<String> list;

@@ -8,6 +8,8 @@ import net.axda.se.api.function.LogFunction;
 import net.axda.se.api.function.SetIntervalFunction;
 import net.axda.se.api.function.SetTimeoutFunction;
 import net.axda.se.api.game.MC;
+import net.axda.se.api.game.data.FloatPos;
+import net.axda.se.api.game.data.IntPos;
 import net.axda.se.api.script.LL;
 import net.axda.se.api.script.Logger;
 import net.axda.se.api.system.ScriptFileUtils;
@@ -53,13 +55,15 @@ public class ScriptEngine {
         Value js = this.context.getBindings("js");
         js.putMember("ll", new LL().setEngine(this));
         js.putMember("logger", new Logger().setEngine(this));
-        js.putMember("KVDatabase", KVDatabase.class);
         js.putMember("File", new ScriptFileUtils().setEngine(this));
         js.putMember("mc", new MC().setEngine(this));
         js.putMember("log", new LogFunction().setEngine(this));
         js.putMember("setInterval", new SetIntervalFunction().setEngine(this));
         js.putMember("setTimeout", new SetTimeoutFunction().setEngine(this));
         js.putMember("clearInterval", new ClearIntervalFunction().setEngine(this));
+        js.putMember("KVDatabase", KVDatabase.class);
+        js.putMember("IntPos", IntPos.class);
+        js.putMember("FloatPos", FloatPos.class);
     }
 
     public void execute() throws ScriptExecuteException {

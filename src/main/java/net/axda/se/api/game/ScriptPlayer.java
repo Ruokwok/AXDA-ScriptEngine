@@ -1,6 +1,9 @@
 package net.axda.se.api.game;
 
 import cn.nukkit.Player;
+import cn.nukkit.math.Vector3;
+import net.axda.se.api.game.data.FloatPos;
+import net.axda.se.api.game.data.Pos;
 import net.axda.se.exception.ValueTypeException;
 import net.axda.se.api.API;
 import org.graalvm.polyglot.HostAccess;
@@ -8,7 +11,7 @@ import org.graalvm.polyglot.Value;
 import org.graalvm.polyglot.proxy.ProxyExecutable;
 import org.graalvm.polyglot.proxy.ProxyObject;
 
-public class ScriptPlayer extends API implements ProxyObject {
+public class ScriptPlayer extends API implements ProxyObject, Pos {
 
     private Player player;
 
@@ -78,7 +81,7 @@ public class ScriptPlayer extends API implements ProxyObject {
     @HostAccess.Export
     public boolean sendToast(Value... args) {
         try {
-            player.sendToast(args[0].asString(), args[1].asString());
+            player.sendToast(API.toString(args[0]), API.toString(args[1]));
         } catch (Exception e) {
             throw new ValueTypeException();
         }
@@ -104,13 +107,17 @@ public class ScriptPlayer extends API implements ProxyObject {
     }
 
     @HostAccess.Export
-    public int distanceTo(Object pos) {
-        return 0;
-    }
-
-    @HostAccess.Export
-    public int distanceToSqr(Object pos) {
-        return distanceTo(pos);
+    public double distanceTo(Value... args) {
+        try {
+            Pos pos = API.toPos(args[0]);
+            if (!player.getLevel().getName().equals(pos.getLevel())) {
+                return Integer.MAX_VALUE;
+            } else {
+                return (float) player.distance(new Vector3(pos.getX(), pos.getY(), pos.getZ()));
+            }
+        } catch (Exception e) {
+            throw new ValueTypeException(e);
+        }
     }
 
     @HostAccess.Export
@@ -304,11 +311,6 @@ public class ScriptPlayer extends API implements ProxyObject {
     }
 
     @HostAccess.Export
-    public int getLevel() {
-        return 0;
-    }
-
-    @HostAccess.Export
     public boolean setLevel(int level) {
         return false;
     }
@@ -363,6 +365,10 @@ public class ScriptPlayer extends API implements ProxyObject {
         return false;
     }
 
+    public FloatPos pos() {
+        return new FloatPos(player.getX(), player.getY(), player.getZ(), player.getLevel().getDimension(), player.getLevel().getName());
+    }
+
 
     public ScriptPlayer(Player player) {
         this.player = player;
@@ -376,6 +382,7 @@ public class ScriptPlayer extends API implements ProxyObject {
     public Object getMember(String key) {
         switch (key) {
             case "name": return player.getName();
+            case "pos": return pos();
             case "realName": return player.getLoginChainData().getUsername();
             case "xuid": return player.getLoginChainData().getXUID();
             case "tell", "sendText": return (ProxyExecutable) this::tell;
@@ -385,6 +392,7 @@ public class ScriptPlayer extends API implements ProxyObject {
             case "sendToast": return (ProxyExecutable) this::sendToast;
             case "runcmd": return (ProxyExecutable) this::runcmd;
             case "talkAs": return (ProxyExecutable) this::talkAs;
+            case "distanceTo", "distanceToSqr": return (ProxyExecutable) this::distanceTo;
         }
         return null;
     }
@@ -402,5 +410,40 @@ public class ScriptPlayer extends API implements ProxyObject {
     @Override
     public void putMember(String key, Value value) {
 
+    }
+
+    @Override
+    public double getX() {
+        return player.getX();
+    }
+
+    @Override
+    public double getY() {
+        return player.getY();
+    }
+
+    @Override
+    public double getZ() {
+        return player.getZ();
+    }
+
+    @Override
+    public String getLevel() {
+        return player.getLevel().getName();
+    }
+
+    @Override
+    public String getDim() {
+        switch (player.getLevel().getDimension()) {
+            case 0: return "主世界";
+            case 1: return "下界";
+            case 2: return "末地";
+            default: return null;
+        }
+    }
+
+    @Override
+    public int getDimId() {
+        return player.getLevel().getDimension();
     }
 }

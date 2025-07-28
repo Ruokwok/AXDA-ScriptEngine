@@ -4,8 +4,8 @@ public class ValueTypeException extends RuntimeException {
 
     private String message;
 
-    public ValueTypeException(String message) {
-        this.message = message;
+    public ValueTypeException(Exception e) {
+        this.message = e.getMessage();
     }
 
     public ValueTypeException() {

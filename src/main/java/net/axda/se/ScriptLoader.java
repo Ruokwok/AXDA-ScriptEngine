@@ -2,7 +2,6 @@ package net.axda.se;
 
 import cn.nukkit.Player;
 import cn.nukkit.Server;
-import cn.nukkit.scheduler.AsyncTask;
 import cn.nukkit.scheduler.TaskHandler;
 import cn.nukkit.utils.LogLevel;
 import cn.nukkit.utils.Logger;
@@ -11,7 +10,6 @@ import net.axda.se.api.game.ScriptPlayer;
 import net.axda.se.api.script.LL;
 import net.axda.se.listen.ListenMap;
 
-import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
@@ -111,7 +109,7 @@ public class ScriptLoader {
     }
 
     public ScriptPlayer getPlayer(Player player) {
-        if (players.contains(player)) {
+        if (players.containsKey(player)) {
             return players.get(player);
         } else {
             ScriptPlayer sp = new ScriptPlayer(player);

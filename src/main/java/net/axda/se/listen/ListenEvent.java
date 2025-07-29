@@ -10,6 +10,12 @@ public enum ListenEvent {
     PlayerOnJoin("onJoin"),
     PlayerOnLeft("onLeft"),
     PlayerJump("onJump"),
+    PlayerRespawn("onRespawn"),
+    PlayerDeath("onPlayerDie"),
+    PlayerCmd("onPlayerCmd"),
+    PlayerChat("onChat"),
+    PlayerChangeDim("onChangeDim"),
+    PlayerSneak("onSneak"),
     ;
 
     private static List<String> list;

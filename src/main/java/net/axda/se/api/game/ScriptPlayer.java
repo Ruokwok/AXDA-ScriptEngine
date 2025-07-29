@@ -44,7 +44,7 @@ public class ScriptPlayer extends API implements ProxyObject, Pos {
     public boolean tell(Value... args) throws ValueTypeException {
         if (args.length < 1) return false;
         try {
-            String msg = args[0].asString();
+            String msg = args[0].toString();
             int type = (args.length < 2)? 0: args[1].asInt();
             switch (type) {
                 case 0: player.sendMessage(msg); return true;
@@ -54,7 +54,7 @@ public class ScriptPlayer extends API implements ProxyObject, Pos {
                 default: return false;
             }
         } catch (Exception e) {
-            throw new ValueTypeException();
+            throw new ValueTypeException(e);
         }
     }
 

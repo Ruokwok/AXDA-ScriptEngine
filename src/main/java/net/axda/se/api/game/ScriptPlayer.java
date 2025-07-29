@@ -1,6 +1,10 @@
 package net.axda.se.api.game;
 
 import cn.nukkit.Player;
+import cn.nukkit.Server;
+import cn.nukkit.command.CommandSender;
+import cn.nukkit.event.player.PlayerChatEvent;
+import cn.nukkit.level.Location;
 import cn.nukkit.math.Vector3;
 import net.axda.se.api.game.data.FloatPos;
 import net.axda.se.api.game.data.Pos;
@@ -11,9 +15,12 @@ import org.graalvm.polyglot.Value;
 import org.graalvm.polyglot.proxy.ProxyExecutable;
 import org.graalvm.polyglot.proxy.ProxyObject;
 
+import java.util.HashSet;
+
 public class ScriptPlayer extends API implements ProxyObject, Pos {
 
     private Player player;
+    private Server server = Server.getInstance();
 
     @HostAccess.Export
     public boolean isOP(Value... args) {
@@ -121,18 +128,59 @@ public class ScriptPlayer extends API implements ProxyObject, Pos {
     }
 
     @HostAccess.Export
-    public boolean talkTo(String msg, ScriptPlayer player) {
+    public boolean talkTo(Value... args) {
+        try {
+            String message = args[0].asString();
+            Player target = args[1].getMember("..nukkit_player..").as(Player.class);
+            if (target != null && target.isOnline()) {
+                player.resetCraftingGridType();
+
+                for(String msg : message.split("\n")) {
+                    if (!msg.trim().isEmpty() && msg.length() < 512) {
+                        PlayerChatEvent chatEvent = new PlayerChatEvent(player, msg);
+                        server.getPluginManager().callEvent(chatEvent);
+                        if (!chatEvent.isCancelled()) {
+                            HashSet<CommandSender> set = new HashSet<>();
+                            set.add(target);
+                            server.broadcastMessage(
+                                    server.getLanguage().translateString(chatEvent.getFormat(),
+                                    new String[]{chatEvent.getPlayer().getDisplayName(), chatEvent.getMessage()}),
+                                    set);
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        } catch (Exception e) {
+            throw new ValueTypeException(e);
+        }
+    }
+
+    @HostAccess.Export
+    public boolean teleport(Value... args) {
+        try {
+            Pos pos;
+            if (args[0].isNumber()) {
+                float x = args[0].asFloat();
+                float y = args[1].asFloat();
+                float z = args[2].asFloat();
+                int dim = args[3].asInt();
+                pos = new FloatPos(x, y, z, dim);
+                player.teleport(pos.getLocation());
+            } else {
+
+            }
+        } catch (Exception e) {
+            throw new ValueTypeException(e);
+        }
         return false;
     }
 
     @HostAccess.Export
-    public boolean teleport(Object pos, Object rot) {
-        return false;
-    }
-
-    @HostAccess.Export
-    public boolean kill() {
-        return false;
+    public boolean kill(Value... args) {
+        player.setHealth(0);
+        return true;
     }
 
     @HostAccess.Export
@@ -381,6 +429,7 @@ public class ScriptPlayer extends API implements ProxyObject, Pos {
     @Override
     public Object getMember(String key) {
         switch (key) {
+            case "..nukkit_player..": return player;
             case "name": return player.getName();
             case "pos": return pos();
             case "realName": return player.getLoginChainData().getUsername();
@@ -393,6 +442,9 @@ public class ScriptPlayer extends API implements ProxyObject, Pos {
             case "runcmd": return (ProxyExecutable) this::runcmd;
             case "talkAs": return (ProxyExecutable) this::talkAs;
             case "distanceTo", "distanceToSqr": return (ProxyExecutable) this::distanceTo;
+            case "talkTo": return (ProxyExecutable) this::talkTo;
+            case "teleport": return (ProxyExecutable) this::teleport;
+            case "kill": return (ProxyExecutable) this::kill;
         }
         return null;
     }
@@ -445,5 +497,10 @@ public class ScriptPlayer extends API implements ProxyObject, Pos {
     @Override
     public int getDimId() {
         return player.getLevel().getDimension();
+    }
+
+    @Override
+    public Location getLocation() {
+        return player.getLocation();
     }
 }

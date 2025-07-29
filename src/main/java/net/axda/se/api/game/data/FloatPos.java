@@ -1,6 +1,7 @@
 package net.axda.se.api.game.data;
 
 import cn.nukkit.Server;
+import cn.nukkit.level.Location;
 import org.graalvm.polyglot.HostAccess;
 
 public class FloatPos implements Pos {
@@ -70,5 +71,10 @@ public class FloatPos implements Pos {
     @Override
     public int getDimId() {
         return dimid;
+    }
+
+    @Override
+    public Location getLocation() {
+        return new Location(x, y, z);
     }
 }

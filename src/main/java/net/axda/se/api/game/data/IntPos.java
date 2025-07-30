@@ -1,7 +1,9 @@
 package net.axda.se.api.game.data;
 
 import cn.nukkit.Server;
+import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
+import cn.nukkit.math.Vector3;
 import org.graalvm.polyglot.HostAccess;
 
 public class IntPos implements Pos {
@@ -36,6 +38,10 @@ public class IntPos implements Pos {
             case 1: dim = "下界"; break;
             case 2: dim = "末地"; break;
         }
+    }
+
+    public IntPos(Vector3 vector3, Level level) {
+        this(vector3.getFloorX(), vector3.getFloorY(), vector3.getFloorZ(), level.getDimension(), level.getName());
     }
 
     @HostAccess.Export

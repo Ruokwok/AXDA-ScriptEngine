@@ -2,19 +2,19 @@ package net.axda.se.api.game;
 
 import cn.nukkit.Player;
 import cn.nukkit.Server;
+import cn.nukkit.command.CommandSender;
+import cn.nukkit.command.ConsoleCommandSender;
 import cn.nukkit.event.EventHandler;
 import net.axda.se.ScriptLoader;
 import net.axda.se.api.API;
+import net.axda.se.exception.ValueTypeException;
 import net.axda.se.listen.Listen;
 import net.axda.se.listen.ListenEvent;
 import net.axda.se.listen.ListenMap;
 import org.graalvm.polyglot.HostAccess;
 import org.graalvm.polyglot.Value;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 public class MC extends API {
 
@@ -72,6 +72,11 @@ public class MC extends API {
 
     @HostAccess.Export
     public ScriptPlayer getPlayer(String info) {
+        Player player = server.getPlayer(info);
+        if (player == null) server.getPlayer(UUID.fromString(info));
+        if (player != null) {
+            return ScriptLoader.getInstance().getPlayer(player);
+        }
         return null;
     }
 
@@ -94,6 +99,36 @@ public class MC extends API {
     @HostAccess.Export
     public boolean broadcast(String msg) {
         return broadcast(msg, 0);
+    }
+
+    @HostAccess.Export
+    public boolean runcmd(Value value) {
+        try {
+            String cmd = value.asString();
+            return server.dispatchCommand(server.getConsoleSender(), cmd);
+        } catch (Exception e) {
+            throw new ValueTypeException(e);
+        }
+    }
+
+    @HostAccess.Export
+    public HashMap<String, Object> runcmdEx(Value value) {
+        try {
+            String cmd = value.asString();
+            HashMap<String, Object> map = new HashMap<>();
+            ConsoleCommandSender sender = new ConsoleCommandSender() {
+                @Override
+                public void sendMessage(String message) {
+                    message = this.getServer().getLanguage().translateString(message);
+                    map.put("output", message);
+                }
+            };
+            boolean b = server.dispatchCommand(sender, cmd);
+            map.put("success", b);
+            return map;
+        } catch (Exception e) {
+            throw new ValueTypeException();
+        }
     }
 
 }

@@ -1,6 +1,7 @@
 package net.axda.se.listen;
 
 import cn.nukkit.Server;
+import cn.nukkit.utils.MainLogger;
 import net.axda.se.ScriptEngine;
 import org.graalvm.polyglot.Value;
 
@@ -31,7 +32,7 @@ public class Listen {
             engine.getContext().leave();
             if (execute.isBoolean() && !execute.asBoolean()) return false;
         } catch (Exception e) {
-            Server.getInstance().getLogger().logException(e);
+            MainLogger.getLogger().logException(e);
         }
         return true;
     }

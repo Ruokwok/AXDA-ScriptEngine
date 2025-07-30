@@ -7,6 +7,7 @@ import cn.nukkit.event.player.PlayerChatEvent;
 import cn.nukkit.level.Location;
 import cn.nukkit.math.Vector3;
 import net.axda.se.api.game.data.FloatPos;
+import net.axda.se.api.game.data.IntPos;
 import net.axda.se.api.game.data.Pos;
 import net.axda.se.exception.ValueTypeException;
 import net.axda.se.api.API;
@@ -414,9 +415,12 @@ public class ScriptPlayer extends API implements ProxyObject, Pos {
     }
 
     public FloatPos pos() {
-        return new FloatPos(player.getX(), player.getY(), player.getZ(), player.getLevel().getDimension(), player.getLevel().getName());
+        return new FloatPos(player, player.getLevel());
     }
 
+    public IntPos blockPos() {
+        return new IntPos(player.getLevelBlock(), player.getLevel());
+    }
 
     public ScriptPlayer(Player player) {
         this.player = player;
@@ -430,10 +434,65 @@ public class ScriptPlayer extends API implements ProxyObject, Pos {
     public Object getMember(String key) {
         switch (key) {
             case "..nukkit_player..": return player;
+            //玩家对象属性
             case "name": return player.getName();
             case "pos": return pos();
+            case "feetPos": return null;
+            case "blockPos": return blockPos();
+            case "lastDeathPos": return null;
             case "realName": return player.getLoginChainData().getUsername();
             case "xuid": return player.getLoginChainData().getXUID();
+            case "uuid": return player.getUniqueId().toString();
+            case "permLevel": return null;
+            case "gameMode": return player.getGamemode();
+            case "canFly": return null;
+            case "canSleep": return null;
+            case "canBeSeenOnMap": return null;
+            case "canFreeze": return null;
+            case "canSeeDaylight": return null;
+            case "canShowNameTag": return null;
+            case "canStartSleepInBed": return null;
+            case "canPickupItems": return player.getMaxHealth();
+            case "maxHealth": return player.getHealth();
+            case "health": return null;
+            case "inAir": return null;
+            case "inWater": return null;
+            case "inLava": return null;
+            case "inRain": return null;
+            case "inSnow": return null;
+            case "inWall": return null;
+            case "inWaterOrRain": return null;
+            case "inWorld": return player.getLocation().getLevel().getDimension() == 1;
+            case "inClouds": return null;
+            case "speed": return player.getWalkSpeed();
+            case "direction": return null;
+            case "uniqueId": return null;
+            case "runtimeId": return null;
+            case "langCode": return player.getLocale().getLanguage();
+            case "isLoading": return null;
+            case "isInvisible": return null;
+            case "isInsidePortal": return null;
+            case "isHurt": return null;
+            case "isTrusting": return null;
+            case "isTouchingDamageBlock": return null;
+            case "isHungry": return null;
+            case "isOnFire": return null;
+            case "isOnGround": return null;
+            case "isOnHotBlock": return null;
+            case "isTrading": return null;
+            case "isAdventure": return player.getGamemode() == Player.ADVENTURE;
+            case "isGliding": return null;
+            case "isSurvival": return player.getGamemode() == Player.SURVIVAL;
+            case "isSpectator": return player.getGamemode() == Player.SPECTATOR;
+            case "isRiding": return null;
+            case "isDancing": return null;
+            case "isCreative": return player.getGamemode() == Player.CREATIVE;
+            case "isFlying": return null;
+            case "isSleeping": return player.isSleeping();
+            case "isMoving": return null;
+            case "isSneaking": return player.isSneaking();
+
+            //玩家对象函数
             case "tell", "sendText": return (ProxyExecutable) this::tell;
             case "isOp": return (ProxyExecutable) this::isOP;
             case "kick", "disconnect": return (ProxyExecutable) this::kick;

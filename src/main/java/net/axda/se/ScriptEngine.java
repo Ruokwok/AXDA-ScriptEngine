@@ -13,6 +13,7 @@ import net.axda.se.api.game.data.IntPos;
 import net.axda.se.api.script.LL;
 import net.axda.se.api.script.Logger;
 import net.axda.se.api.system.ScriptFileUtils;
+import net.axda.se.api.system.ScriptSystem;
 import net.axda.se.exception.ScriptExecuteException;
 import net.axda.se.listen.ListenMap;
 import org.graalvm.polyglot.Context;
@@ -53,14 +54,20 @@ public class ScriptEngine {
 
     public void registerAPI() {
         Value js = this.context.getBindings("js");
+        //对象
         js.putMember("ll", new LL().setEngine(this));
         js.putMember("logger", new Logger().setEngine(this));
         js.putMember("File", new ScriptFileUtils().setEngine(this));
+        js.putMember("system", new ScriptSystem().setEngine(this));
         js.putMember("mc", new MC().setEngine(this));
         js.putMember("log", new LogFunction().setEngine(this));
+
+        //函数
         js.putMember("setInterval", new SetIntervalFunction().setEngine(this));
         js.putMember("setTimeout", new SetTimeoutFunction().setEngine(this));
         js.putMember("clearInterval", new ClearIntervalFunction().setEngine(this));
+
+        //类
         js.putMember("KVDatabase", KVDatabase.class);
         js.putMember("IntPos", IntPos.class);
         js.putMember("FloatPos", FloatPos.class);

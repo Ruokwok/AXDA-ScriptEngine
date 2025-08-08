@@ -13,15 +13,19 @@ public class ScriptExecTask extends AsyncTask {
     private ScriptEngine engine;
 
     public ScriptExecTask(int threadId, String script, File file) {
+        this.engine = new ScriptEngine(script, file, this);
         this.threadId = threadId;
         this.script = script;
         this.file = file;
     }
 
+    public ScriptEngine getEngine() {
+        return this.engine;
+    }
+
     @Override
     public void onRun() {
         try {
-            this.engine = new ScriptEngine(script, file, threadId, this);
             ScriptLoader.getInstance().putEngine(this.engine);
             this.engine.execute();
         } catch (Exception e) {

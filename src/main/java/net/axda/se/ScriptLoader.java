@@ -23,6 +23,7 @@ public class ScriptLoader {
     private Hashtable<String, ScriptEngine> engines = new Hashtable<>();
     private Hashtable<Player, ScriptPlayer> players = new Hashtable<>();
     private int counter = -1;
+    private ScriptEngine nowEngine;
 
     private ScriptLoader() {
     }
@@ -70,11 +71,14 @@ public class ScriptLoader {
         ScriptExecTask task = new ScriptExecTask(counter, script, file);
 //        TaskHandler taskHandler = Server.getInstance().getScheduler().scheduleAsyncTask(AXDAScriptEngine.getPlugin(), task);
 //        task.setTaskId(taskHandler.getTaskId());
+        this.nowEngine = task.getEngine();
+        putEngine(task.getEngine());
         task.onRun();
+        this.nowEngine = null;
     }
 
     protected void putEngine(ScriptEngine engine) {
-        engines.put(engine.getThreadName(), engine);
+        engines.put(engine.getUUID(), engine);
     }
 
     public void disablePlugins() {
@@ -87,8 +91,8 @@ public class ScriptLoader {
     public void disablePlugin(ScriptEngine engine) {
         if (engine != null) {
             engine.disable();
-            engines.remove(engine.getThreadName());
         }
+        engines.remove(engine.getUUID());
     }
 
     public String getRuntime() {
@@ -127,21 +131,30 @@ public class ScriptLoader {
         return new ArrayList<>(players.values());
     }
 
+    /**
+     * 向正在执行的脚本对象添加一个需要关闭的资源
+     * @param c
+     */
     public void putCloseable(AutoCloseable c) {
-        String threadName = Thread.currentThread().getName();
-        if (threadName.startsWith("js-")) {
-            ScriptEngine engine = engines.get(threadName);
-            if (engine == null) {
-                String[] split = threadName.split("/");
-                if (split.length == 2 && split[0].startsWith("js-")) {
-                    engine = engines.get(split[0]);
-                }
-            }
-            if (engine != null) {
-                engine.putCloseable(c);
-            }
-        } else if (ListenMap.execEngine != null) {
-            ListenMap.execEngine.putCloseable(c);
+//        String threadName = Thread.currentThread().getName();
+//        if (threadName.startsWith("js-")) {
+//            ScriptEngine engine = engines.get(threadName);
+//            if (engine == null) {
+//                String[] split = threadName.split("/");
+//                if (split.length == 2 && split[0].startsWith("js-")) {
+//                    engine = engines.get(split[0]);
+//                }
+//            }
+//            if (engine != null) {
+//                engine.putCloseable(c);
+//            }
+//        } else if (ListenMap.execEngine != null) {
+//            ListenMap.nowEngine.putCloseable(c);
+//        }
+        if (this.nowEngine != null) {
+            this.nowEngine.putCloseable(c);
+        } else if (ListenMap.nowEngine != null) {
+            ListenMap.nowEngine.putCloseable(c);
         }
     }
 

@@ -21,11 +21,12 @@ import org.graalvm.polyglot.HostAccess;
 import org.graalvm.polyglot.Value;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+/**
+ * 脚本插件对象
+ * @author Ruok
+ */
 public class ScriptEngine {
 
     private final String SCRIPT;
@@ -35,10 +36,9 @@ public class ScriptEngine {
     private List<Integer> tasks = new ArrayList<>();
     private List<AutoCloseable> closeables = new ArrayList<>();
     private AsyncTask scriptTask;
-    private int threadId;
+    private String uuid = UUID.randomUUID().toString();
 
-    public ScriptEngine(String script, File file, int threadId, AsyncTask scriptTask) {
-        this.threadId = threadId;
+    public ScriptEngine(String script, File file, AsyncTask scriptTask) {
 //        Thread.currentThread().setName(getThreadName());
         this.SCRIPT = script;
         this.scriptTask = scriptTask;
@@ -52,6 +52,9 @@ public class ScriptEngine {
         this.description.setFile(file);
     }
 
+    /**
+     * 注册插件运行环境所需API
+     */
     public void registerAPI() {
         Value js = this.context.getBindings("js");
         //对象
@@ -126,13 +129,16 @@ public class ScriptEngine {
         closeables.add(closeable);
     }
 
-    public String getThreadName() {
-//        return "js-" + threadId;
-        return Thread.currentThread().getName();
+    public String getUUID() {
+        return uuid;
     }
 
     public AsyncTask getTask() {
         return this.scriptTask;
     }
 
+    @Override
+    public String toString() {
+        return "jsplugin-" + getDescription().getName() + "@" + this.hashCode();
+    }
 }

@@ -8,7 +8,7 @@ public class ListenMap {
 
     private static ConcurrentHashMap<ScriptEngine, ConcurrentHashMap<String, Listen>> map = new ConcurrentHashMap<>();
 
-    public static ScriptEngine execEngine;
+    public static ScriptEngine nowEngine;
 
     public static boolean put(String event, Listen listen) {
         if (ListenEvent.getAllEvents().contains(event)) {
@@ -33,9 +33,9 @@ public class ListenMap {
         for (ConcurrentHashMap<String, Listen> listenMap : map.values()) {
             if (listenMap.containsKey(event)) {
                 Listen listen = listenMap.get(event);
-                execEngine = listen.getEngine();
+                nowEngine = listen.getEngine();
                 b = listen.callEvent(args);
-                execEngine = null;
+                nowEngine = null;
             }
         }
         return b;

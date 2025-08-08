@@ -23,413 +23,6 @@ public class ScriptPlayer extends API implements ProxyObject, Pos {
     private Player player;
     private Server server = Server.getInstance();
 
-    @HostAccess.Export
-    public boolean isOP(Value... args) {
-        return player.isOp();
-    }
-
-    @HostAccess.Export
-    public boolean kick(Value... args) {
-        if (args.length > 0) {
-            return player.kick(args[0].asString());
-        }
-        return false;
-    }
-
-    @HostAccess.Export
-    public boolean disconnect(Value... args) {
-        return kick(args);
-    }
-
-    @HostAccess.Export
-    public boolean tell(Value... args) throws ValueTypeException {
-        if (args.length < 1) return false;
-        try {
-            String msg = args[0].toString();
-            int type = (args.length < 2)? 0: args[1].asInt();
-            switch (type) {
-                case 0: player.sendMessage(msg); return true;
-                case 1: player.sendChat(msg); return true;
-                case 4: player.sendPopup(msg); return true;
-                case 5: player.sendTip(msg); return true;
-                default: return false;
-            }
-        } catch (Exception e) {
-            throw new ValueTypeException(e);
-        }
-    }
-
-    @HostAccess.Export
-    public boolean setTitle(Value... args) {
-        if (args.length == 0) return false;
-        try {
-            String content = args[0].asString();
-            int type = (args.length <= 2)? 2: args[1].asInt();
-            int fadeInTime = (args.length <= 3)? 10: args[2].asInt();
-            int stayTime = (args.length <= 4)? 70: args[3].asInt();
-            int fadeOutTime = (args.length <= 5)? 20: args[4].asInt();
-            switch (type) {
-                case 0: player.clearTitle(); return true;
-                case 1: return false;
-                case 2: player.sendTitle(content, "", fadeInTime, stayTime, fadeOutTime); return true;
-                case 3: player.sendTitle("", content, fadeInTime, stayTime, fadeOutTime); return true;
-                case 4: player.sendActionBar(content, fadeInTime, stayTime, fadeOutTime); return true;
-                default: return false;
-            }
-        } catch (Exception e) {
-            throw new ValueTypeException();
-        }
-    }
-
-    @HostAccess.Export
-    public boolean broadcast(String msg, String type) {
-        return false;
-    }
-
-    @HostAccess.Export
-    public boolean sendToast(Value... args) {
-        try {
-            player.sendToast(API.toString(args[0]), API.toString(args[1]));
-        } catch (Exception e) {
-            throw new ValueTypeException();
-        }
-        return false;
-    }
-
-    @HostAccess.Export
-    public boolean runcmd(Value... args) {
-        try {
-            return player.getServer().dispatchCommand(player, args[0].asString());
-        } catch (Exception e) {
-            throw new ValueTypeException();
-        }
-    }
-
-    @HostAccess.Export
-    public boolean talkAs(Value... args) {
-        try {
-            return player.chat(args[0].asString());
-        } catch (Exception e) {
-            throw new ValueTypeException();
-        }
-    }
-
-    @HostAccess.Export
-    public double distanceTo(Value... args) {
-        try {
-            Pos pos = API.toPos(args[0]);
-            if (!player.getLevel().getName().equals(pos.getLevel())) {
-                return Integer.MAX_VALUE;
-            } else {
-                return (float) player.distance(new Vector3(pos.getX(), pos.getY(), pos.getZ()));
-            }
-        } catch (Exception e) {
-            throw new ValueTypeException(e);
-        }
-    }
-
-    @HostAccess.Export
-    public boolean talkTo(Value... args) {
-        try {
-            String message = args[0].asString();
-            Player target = args[1].getMember("..nukkit_player..").as(Player.class);
-            if (target != null && target.isOnline()) {
-                player.resetCraftingGridType();
-
-                for(String msg : message.split("\n")) {
-                    if (!msg.trim().isEmpty() && msg.length() < 512) {
-                        PlayerChatEvent chatEvent = new PlayerChatEvent(player, msg);
-                        server.getPluginManager().callEvent(chatEvent);
-                        if (!chatEvent.isCancelled()) {
-                            HashSet<CommandSender> set = new HashSet<>();
-                            set.add(target);
-                            server.broadcastMessage(
-                                    server.getLanguage().translateString(chatEvent.getFormat(),
-                                    new String[]{chatEvent.getPlayer().getDisplayName(), chatEvent.getMessage()}),
-                                    set);
-                            return true;
-                        }
-                    }
-                }
-            }
-            return false;
-        } catch (Exception e) {
-            throw new ValueTypeException(e);
-        }
-    }
-
-    @HostAccess.Export
-    public boolean teleport(Value... args) {
-        try {
-            Pos pos;
-            if (args[0].isNumber()) {
-                float x = args[0].asFloat();
-                float y = args[1].asFloat();
-                float z = args[2].asFloat();
-                int dim = args[3].asInt();
-                pos = new FloatPos(x, y, z, dim);
-                player.teleport(pos.getLocation());
-            } else {
-
-            }
-        } catch (Exception e) {
-            throw new ValueTypeException(e);
-        }
-        return false;
-    }
-
-    @HostAccess.Export
-    public boolean kill(Value... args) {
-        player.setHealth(0);
-        return true;
-    }
-
-    @HostAccess.Export
-    public boolean hurt(float damage, int type, Object source) {
-        return false;
-    }
-
-    @HostAccess.Export
-    public boolean heal(int health) {
-        return false;
-    }
-
-    @HostAccess.Export
-    public boolean setHealth(int health) {
-        return false;
-    }
-
-    @HostAccess.Export
-    public boolean setAbsorption(int value) {
-        return false;
-    }
-
-    @HostAccess.Export
-    public boolean setAttackDamage(int value) {
-        return false;
-    }
-
-    @HostAccess.Export
-    public boolean setMaxAttackDamage(int value) {
-        return false;
-    }
-
-    @HostAccess.Export
-    public boolean setFollowRange(int value) {
-        return false;
-    }
-
-    @HostAccess.Export
-    public boolean setKnockbackResistance(int value) {
-        return false;
-    }
-
-    @HostAccess.Export
-    public boolean setLuck(int value) {
-        return false;
-    }
-
-    @HostAccess.Export
-    public boolean setMovementSpeed(int value) {
-        return false;
-    }
-
-    @HostAccess.Export
-    public boolean setUnderwaterMovementSpeed(int value) {
-        return false;
-    }
-
-    @HostAccess.Export
-    public boolean setLavaMovementSpeed(int value) {
-        return false;
-    }
-
-    @HostAccess.Export
-    public boolean setMaxHealth(int health) {
-        return false;
-    }
-
-    @HostAccess.Export
-    public boolean setHungry(int hunger) {
-        return false;
-    }
-
-    @HostAccess.Export
-    public boolean setFire(int time, boolean isEffect) {
-        return false;
-    }
-
-    @HostAccess.Export
-    public boolean stopFire() {
-        return false;
-    }
-
-    @HostAccess.Export
-    public boolean setScale(int scale) {
-        return false;
-    }
-
-    @HostAccess.Export
-    public boolean rename(String newname) {
-        return false;
-    }
-
-    @HostAccess.Export
-    public Object getBlockStandingOn() {
-        return null;
-    }
-
-    @HostAccess.Export
-    public Object getDevice() {
-        return null;
-    }
-
-    @HostAccess.Export
-    public Object getHand() {
-        return null;
-    }
-
-    @HostAccess.Export
-    public Object getOffHand() {
-        return null;
-    }
-
-    @HostAccess.Export
-    public Object getInventory() {
-        return null;
-    }
-
-    @HostAccess.Export
-    public Object getArmor() {
-        return null;
-    }
-
-    @HostAccess.Export
-    public Object getEnderChest() {
-        return null;
-    }
-
-    @HostAccess.Export
-    public Object getRespawnPosition() {
-        return null;
-    }
-
-    @HostAccess.Export
-    public boolean setRespawnPosition(Object pos) {
-        return false;
-    }
-
-    @HostAccess.Export
-    public boolean giveItem(Object item, int amount) {
-        return false;
-    }
-
-    @HostAccess.Export
-    public boolean clearItem(String type, int amount) {
-        return false;
-    }
-
-    @HostAccess.Export
-    public boolean refreshItems() {
-        return false;
-    }
-
-    @HostAccess.Export
-    public boolean refreshChunks() {
-        return false;
-    }
-
-    @HostAccess.Export
-    public boolean setPermLevel(int level) {
-        return false;
-    }
-
-    @HostAccess.Export
-    public boolean setGameMode(int mode) {
-        return false;
-    }
-
-    @HostAccess.Export
-    public boolean addLevel(int count) {
-        return false;
-    }
-
-    @HostAccess.Export
-    public boolean reduceLevel(int count) {
-        return false;
-    }
-
-    @HostAccess.Export
-    public boolean setLevel(int level) {
-        return false;
-    }
-
-    @HostAccess.Export
-    public boolean resetLevel() {
-        return false;
-    }
-
-    @HostAccess.Export
-    public int getCurrentExperience() {
-        return 0;
-    }
-
-    @HostAccess.Export
-    public boolean setCurrentExperience(int count) {
-        return false;
-    }
-
-    @HostAccess.Export
-    public int getTotalExperience() {
-        return 0;
-    }
-
-    @HostAccess.Export
-    public boolean setTotalExperience(int count) {
-        return false;
-    }
-
-    @HostAccess.Export
-    public boolean addExperience(int count) {
-        return false;
-    }
-
-    @HostAccess.Export
-    public boolean reduceExperience(int count) {
-        return false;
-    }
-
-    @HostAccess.Export
-    public int getXpNeededForNextLevel() {
-        return 0;
-    }
-
-    @HostAccess.Export
-    public boolean transServer(String server, int port) {
-        return false;
-    }
-
-    @HostAccess.Export
-    public boolean crash() {
-        return false;
-    }
-
-    public FloatPos pos() {
-        return new FloatPos(player, player.getLevel());
-    }
-
-    public IntPos blockPos() {
-        return new IntPos(player.getLevelBlock(), player.getLevel());
-    }
-
-    public ScriptPlayer(Player player) {
-        this.player = player;
-    }
-
-    public Player getNukkitPlayer() {
-        return player;
-    }
-
     @Override
     public Object getMember(String key) {
         switch (key) {
@@ -535,18 +128,18 @@ public class ScriptPlayer extends API implements ProxyObject, Pos {
             case "refreshItems": return null;
             case "refreshChunks": return null;
             case "setPermLevel": return null;
-            case "setGameMode": return null;
+            case "setGameMode": return (ProxyExecutable) this::setGameMode;
             case "addLevel": return null;
             case "reduceLevel": return null;
-            case "getLevel": return null;
-            case "setLevel": return null;
-            case "resetLevel": return null;
-            case "getCurrentExperience": return null;
-            case "setCurrentExperience": return null;
+            case "getLevel": return (ProxyExecutable) this::getExpLevel;
+            case "setLevel": return (ProxyExecutable) this::setExpLevel;
+            case "resetLevel": return (ProxyExecutable) this::resetExpLevel;
+            case "getCurrentExperience": return (ProxyExecutable) this::getExp;
+            case "setCurrentExperience": return (ProxyExecutable) this::setExp;
             case "getTotalExperience": return null;
             case "setTotalExperience": return null;
-            case "addExperience": return null;
-            case "reduceExperience": return null;
+            case "addExperience": return (ProxyExecutable) this::addExp;
+            case "reduceExperience": return (ProxyExecutable) this::reduceExp;
             case "getXpNeededForNextLevel": return null;
             case "transServer": return null;
             case "crash": return null;
@@ -637,4 +230,215 @@ public class ScriptPlayer extends API implements ProxyObject, Pos {
     public Location getLocation() {
         return player.getLocation();
     }
+
+    public ScriptPlayer(Player player) {
+        this.player = player;
+    }
+
+    public Player getNukkitPlayer() {
+        return player;
+    }
+
+    public boolean isOP(Value... args) {
+        return player.isOp();
+    }
+
+    public boolean kick(Value... args) {
+        if (args.length > 0) {
+            return player.kick(args[0].asString());
+        }
+        return false;
+    }
+
+    public boolean disconnect(Value... args) {
+        return kick(args);
+    }
+
+    public boolean tell(Value... args) throws ValueTypeException {
+        if (args.length < 1) return false;
+        try {
+            String msg = args[0].toString();
+            int type = (args.length < 2)? 0: args[1].asInt();
+            switch (type) {
+                case 0: player.sendMessage(msg); return true;
+                case 1: player.sendChat(msg); return true;
+                case 4: player.sendPopup(msg); return true;
+                case 5: player.sendTip(msg); return true;
+                default: return false;
+            }
+        } catch (Exception e) {
+            throw new ValueTypeException(e);
+        }
+    }
+
+    public boolean setTitle(Value... args) {
+        if (args.length == 0) return false;
+        try {
+            String content = args[0].asString();
+            int type = (args.length <= 2)? 2: args[1].asInt();
+            int fadeInTime = (args.length <= 3)? 10: args[2].asInt();
+            int stayTime = (args.length <= 4)? 70: args[3].asInt();
+            int fadeOutTime = (args.length <= 5)? 20: args[4].asInt();
+            switch (type) {
+                case 0: player.clearTitle(); return true;
+                case 1: return false;
+                case 2: player.sendTitle(content, "", fadeInTime, stayTime, fadeOutTime); return true;
+                case 3: player.sendTitle("", content, fadeInTime, stayTime, fadeOutTime); return true;
+                case 4: player.sendActionBar(content, fadeInTime, stayTime, fadeOutTime); return true;
+                default: return false;
+            }
+        } catch (Exception e) {
+            throw new ValueTypeException();
+        }
+    }
+
+    public boolean broadcast(String msg, String type) {
+        return false;
+    }
+
+    @HostAccess.Export
+    public boolean sendToast(Value... args) {
+        try {
+            player.sendToast(API.toString(args[0]), API.toString(args[1]));
+        } catch (Exception e) {
+            throw new ValueTypeException();
+        }
+        return false;
+    }
+
+    public boolean runcmd(Value... args) {
+        try {
+            return player.getServer().dispatchCommand(player, args[0].asString());
+        } catch (Exception e) {
+            throw new ValueTypeException();
+        }
+    }
+
+    public boolean talkAs(Value... args) {
+        try {
+            return player.chat(args[0].asString());
+        } catch (Exception e) {
+            throw new ValueTypeException();
+        }
+    }
+
+    public double distanceTo(Value... args) {
+        try {
+            Pos pos = API.toPos(args[0]);
+            if (!player.getLevel().getName().equals(pos.getLevel())) {
+                return Integer.MAX_VALUE;
+            } else {
+                return (float) player.distance(new Vector3(pos.getX(), pos.getY(), pos.getZ()));
+            }
+        } catch (Exception e) {
+            throw new ValueTypeException(e);
+        }
+    }
+
+    public boolean talkTo(Value... args) {
+        try {
+            String message = args[0].asString();
+            Player target = args[1].getMember("..nukkit_player..").as(Player.class);
+            if (target != null && target.isOnline()) {
+                player.resetCraftingGridType();
+
+                for(String msg : message.split("\n")) {
+                    if (!msg.trim().isEmpty() && msg.length() < 512) {
+                        PlayerChatEvent chatEvent = new PlayerChatEvent(player, msg);
+                        server.getPluginManager().callEvent(chatEvent);
+                        if (!chatEvent.isCancelled()) {
+                            HashSet<CommandSender> set = new HashSet<>();
+                            set.add(target);
+                            server.broadcastMessage(
+                                    server.getLanguage().translateString(chatEvent.getFormat(),
+                                            new String[]{chatEvent.getPlayer().getDisplayName(), chatEvent.getMessage()}),
+                                    set);
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        } catch (Exception e) {
+            throw new ValueTypeException(e);
+        }
+    }
+
+    public boolean teleport(Value... args) {
+        try {
+            Pos pos;
+            if (args[0].isNumber()) {
+                float x = args[0].asFloat();
+                float y = args[1].asFloat();
+                float z = args[2].asFloat();
+                int dim = args[3].asInt();
+                pos = new FloatPos(x, y, z, dim);
+                player.teleport(pos.getLocation());
+            } else {
+
+            }
+        } catch (Exception e) {
+            throw new ValueTypeException(e);
+        }
+        return false;
+    }
+
+    public boolean kill(Value... args) {
+        player.setHealth(0);
+        return true;
+    }
+
+    public FloatPos pos() {
+        return new FloatPos(player, player.getLevel());
+    }
+
+    public IntPos blockPos() {
+        return new IntPos(player.getLevelBlock(), player.getLevel());
+    }
+
+    public boolean setGameMode(Value... arg) {
+        return player.setGamemode(arg[0].asInt());
+    }
+
+    public int getExpLevel(Value... args) {
+        return player.getExperienceLevel();
+    }
+
+    public boolean setExpLevel(Value... args) {
+        int level = args[0].asInt();
+        player.setExperience(0, level);
+        return player.getExperienceLevel() == level;
+    }
+
+    public boolean resetExpLevel(Value... args) {
+        player.setExperience(0, 0);
+        return player.getExperienceLevel() == 0;
+    }
+
+    public boolean addExp(Value... args) {
+        int level = args[0].asInt();
+        player.addExperience(level);
+        return player.getExperienceLevel() == level;
+    }
+
+    public boolean reduceExp(Value... args) {
+        int level = args[0].asInt();
+        if (player.getExperience() - level < 0) {
+            player.setExperience(0);
+        } else {
+            player.addExperience(-level);
+        }
+        return true;
+    }
+
+    public int getExp(Value... args) {
+        return player.getExperience();
+    }
+
+    public boolean setExp(Value... args) {
+        int exp = args[0].asInt();
+        player.setExperience(exp);
+        return true;
+    }
+
 }

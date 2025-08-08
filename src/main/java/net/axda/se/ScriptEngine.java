@@ -39,7 +39,7 @@ public class ScriptEngine {
 
     public ScriptEngine(String script, File file, int threadId, AsyncTask scriptTask) {
         this.threadId = threadId;
-        Thread.currentThread().setName(getThreadName());
+//        Thread.currentThread().setName(getThreadName());
         this.SCRIPT = script;
         this.scriptTask = scriptTask;
         this.context = Context.newBuilder("js")
@@ -127,7 +127,8 @@ public class ScriptEngine {
     }
 
     public String getThreadName() {
-        return "js-" + threadId;
+//        return "js-" + threadId;
+        return Thread.currentThread().getName();
     }
 
     public AsyncTask getTask() {

@@ -68,8 +68,9 @@ public class ScriptLoader {
     public void loadPlugin(String script, File file) {
         counter++;
         ScriptExecTask task = new ScriptExecTask(counter, script, file);
-        TaskHandler taskHandler = Server.getInstance().getScheduler().scheduleAsyncTask(AXDAScriptEngine.getPlugin(), task);
-        task.setTaskId(taskHandler.getTaskId());
+//        TaskHandler taskHandler = Server.getInstance().getScheduler().scheduleAsyncTask(AXDAScriptEngine.getPlugin(), task);
+//        task.setTaskId(taskHandler.getTaskId());
+        task.onRun();
     }
 
     protected void putEngine(ScriptEngine engine) {

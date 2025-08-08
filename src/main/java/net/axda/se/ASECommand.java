@@ -21,8 +21,15 @@ public class ASECommand extends Command {
     @Override
     public boolean execute(CommandSender sender, String s, String[] args) {
         if (sender.isOp()) {
-            if (cmds.containsKey(args[0])) {
-                return cmds.get(args[0]).execute(sender, args);
+            if (args.length == 0) {
+                help(sender, args);
+            } else {
+                ScriptCommand command = cmds.get(args[0]);
+                if (command == null) {
+                    help(sender, args);
+                } else {
+                    command.execute(sender, args);
+                }
             }
         }
         return false;
@@ -31,6 +38,14 @@ public class ASECommand extends Command {
     public boolean reload(CommandSender sender, String[] args) {
         ScriptLoader.getInstance().disablePlugins();
         ScriptLoader.getInstance().loadPlugins(AXDAScriptEngine.PLUGIN_PATH);
+        return false;
+    }
+
+    public boolean help(CommandSender sender, String[] args) {
+        sender.sendMessage("AXDA ScriptEngine - v" + AXDAScriptEngine.getPlugin().getDescription().getVersion());
+        sender.sendMessage("Usage: /ase <command>");
+        sender.sendMessage("reload    §aReload all JS plugin.");
+        sender.sendMessage("ls        §aPrint loaded JS plugin list.");
         return true;
     }
 

@@ -24,8 +24,8 @@ public class ScriptListener implements Listener {
     }
 
     @EventHandler
-    public void playerQuit(PlayerJoinEvent event) {
-        ListenMap.call(ListenEvent.PlayerOnJoin.getValue(), loader.getPlayer(event.getPlayer()));
+    public void playerQuit(PlayerQuitEvent event) {
+        ListenMap.call(ListenEvent.PlayerOnLeft.getValue(), loader.getPlayer(event.getPlayer()));
         ScriptLoader.getInstance().removePlayer(event.getPlayer());
     }
 

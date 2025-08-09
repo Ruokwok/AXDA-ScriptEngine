@@ -2,6 +2,10 @@
 Nukkit平台上的JavaScript脚本插件加载器，基于GraalVM实现。
 兼容 [LegacyScriptEngine](https://lse.levimc.org/zh/)(LSE)的API。
 
+ASE可以在绝大部分JVM上运行(>=17)，在使用GraalVM时，需安装js模块，命令如下:
+
+`gu install js`
+
 ### 安装脚本插件
 - JS脚本插件存放在 `plugins/` 目录下，启动服务器插件将会自动加载。
 
@@ -10,7 +14,7 @@ Nukkit平台上的JavaScript脚本插件加载器，基于GraalVM实现。
 - `ase reload` 重新加载所有的脚本插件
 
 ### LSE兼容性
-ASE API目标将兼容绝大部分LSE API，基于LSE开发的JavaScript插件可以直接在ASE上运行，查看LSE文档请移步至[https://lse.levimc.org/zh/](https://lse.levimc.org/zh/)
+ASE API目标是兼容绝大部分LSE API，基于LSE开发的JavaScript插件可以直接在ASE上运行，查看LSE文档请移步至[https://lse.levimc.org/zh/](https://lse.levimc.org/zh/)
 
 #### Level差异
 众所周知，BDS原生不支持多世界特性(多存档)，只存在维度，所以LSE API中不存在类似Nukkit Level的概念。

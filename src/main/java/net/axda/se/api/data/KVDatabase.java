@@ -76,11 +76,13 @@ public class KVDatabase extends API implements AutoCloseable {
 
     @HostAccess.Export
     public void delete(String key) {
+        if (key == null) return;
         this.db.delete(key.getBytes());
     }
 
     @HostAccess.Export
     public List<String> listKey() {
+        if (db == null) return null;
         List<String> keys = new ArrayList<>();
         try (var iterator = db.iterator()) {
             for (iterator.seekToFirst(); iterator.hasNext(); iterator.next()) {

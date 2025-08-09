@@ -2,9 +2,7 @@ package net.axda.se.api.game;
 
 import cn.nukkit.Player;
 import cn.nukkit.Server;
-import cn.nukkit.command.CommandSender;
 import cn.nukkit.command.ConsoleCommandSender;
-import cn.nukkit.event.EventHandler;
 import net.axda.se.ScriptLoader;
 import net.axda.se.api.API;
 import net.axda.se.exception.ValueTypeException;

@@ -3,6 +3,7 @@ package net.axda.se;
 import cn.nukkit.Server;
 import cn.nukkit.plugin.PluginBase;
 import net.axda.se.listen.ListenEvent;
+import org.graalvm.polyglot.Context;
 
 import java.io.File;
 
@@ -45,6 +46,20 @@ public class AXDAScriptEngine extends PluginBase {
             return v;
         } catch (Throwable t) {
             return new int[]{0, 0, 0};
+        }
+    }
+
+    public boolean testEngine() {
+        getLogger().info("Testing JavaScript engine.");
+        try {
+            Context engine = Context.newBuilder("js").allowAllAccess(true).build();
+            engine.eval("js", "var a = 1;");
+            return true;
+        } catch (IllegalArgumentException e) {
+//            Logger.logException(e);
+            getLogger().error("The js module is not installed, please install it and try again.");
+            getLogger().error("If you using GraalVM, please try execute command: gu install js");
+            return false;
         }
     }
 

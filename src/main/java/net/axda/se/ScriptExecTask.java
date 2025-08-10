@@ -5,6 +5,10 @@ import cn.nukkit.scheduler.AsyncTask;
 
 import java.io.File;
 
+/**
+ * 此类原为异步加载脚本设计，后来更改为在主线程加载脚本，仍继续使用此类。
+ * @author Ruok
+ */
 public class ScriptExecTask extends AsyncTask {
 
     private final int threadId;

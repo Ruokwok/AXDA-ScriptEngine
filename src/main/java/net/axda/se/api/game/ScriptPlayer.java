@@ -4,11 +4,19 @@ import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.event.player.PlayerChatEvent;
+import cn.nukkit.form.element.ElementButton;
+import cn.nukkit.form.element.ElementButtonImageData;
+import cn.nukkit.form.response.FormResponseModal;
+import cn.nukkit.form.response.FormResponseSimple;
+import cn.nukkit.form.window.FormWindow;
+import cn.nukkit.form.window.FormWindowModal;
+import cn.nukkit.form.window.FormWindowSimple;
 import cn.nukkit.level.Location;
 import cn.nukkit.math.Vector3;
 import net.axda.se.api.game.data.FloatPos;
 import net.axda.se.api.game.data.IntPos;
 import net.axda.se.api.game.data.Pos;
+import net.axda.se.api.gui.Form;
 import net.axda.se.exception.ValueTypeException;
 import net.axda.se.api.API;
 import org.graalvm.polyglot.HostAccess;
@@ -17,11 +25,13 @@ import org.graalvm.polyglot.proxy.ProxyExecutable;
 import org.graalvm.polyglot.proxy.ProxyObject;
 
 import java.util.HashSet;
+import java.util.List;
 
 public class ScriptPlayer extends API implements ProxyObject, Pos {
 
     private Player player;
     private Server server = Server.getInstance();
+    private Value formCallback;
 
     @Override
     public Object getMember(String key) {
@@ -172,6 +182,13 @@ public class ScriptPlayer extends API implements ProxyObject, Pos {
             case "removeEffect": return null;
             case "toEntity": return null;
             case "isSimulatedPlayer": return null;
+
+            //表单相关函数
+            case "sendModalForm": return (ProxyExecutable) this::sendModalForm;
+            case "sendSimpleForm": return (ProxyExecutable) this::sendSimpleForm;
+            case "sendCustomForm": return (ProxyExecutable) this::sendCustomForm;
+            case "closeForm": return (ProxyExecutable) this::closeForm;
+            case "sendForm": return (ProxyExecutable) this::sendForm;
         }
         return null;
     }
@@ -439,6 +456,72 @@ public class ScriptPlayer extends API implements ProxyObject, Pos {
         int exp = args[0].asInt();
         player.setExperience(exp);
         return true;
+    }
+
+    public int sendModalForm(Value... args) {
+        String title = args[0].asString();
+        String content = args[1].asString();
+        String confirmButton = args[2].asString();
+        String cancelButton = args[3].asString();
+        this.formCallback = args[4];
+        FormWindowModal form = new FormWindowModal(title, content, confirmButton, cancelButton);
+        return player.showFormWindow(form);
+    }
+
+    public int sendSimpleForm(Value... args) {
+        String title = args[0].asString();
+        String content = args[1].asString();
+        List<String> buttons = args[2].as(List.class);
+        List<String> images = args[3].as(List.class);
+        this.formCallback = args[4];
+        FormWindowSimple form = new FormWindowSimple(title, content);
+        for (int i = 0; i < buttons.size(); i++) {
+            if (images != null && images.get(i) != null) {
+                ElementButtonImageData imageData = new ElementButtonImageData(ElementButtonImageData.IMAGE_DATA_TYPE_URL, images.get(i));
+                form.addElement(new ElementButton(buttons.get(i), imageData));
+            } else {
+                form.addElement(new ElementButton(buttons.get(i)));
+            }
+        }
+        return player.showFormWindow(form);
+    }
+
+    public int sendCustomForm(Value... args) {
+        String json = args[0].asString();
+        this.formCallback = args[1];
+        return 0;
+    }
+
+    public boolean closeForm(Value... args) {
+        player.closeFormWindows();
+        formCallback = null;
+        return true;
+    }
+
+    public int sendForm(Value... args) {
+        Form form = args[0].as(Form.class);
+        this.formCallback = args[1];
+        return player.showFormWindow(form.getForm());
+    }
+
+    public void executeFormCallback(FormWindow window) {
+        if (window instanceof FormWindowModal modal) {
+            FormResponseModal response = modal.getResponse();
+            Object id = null;
+            if (response != null) {
+                id = response.getClickedButtonId() == 0;
+            }
+            formCallback.execute(this, id, null);
+            formCallback = null;
+        } else if (window instanceof FormWindowSimple simple) {
+            FormResponseSimple response = simple.getResponse();
+            Object id = null;
+            if (response != null) {
+                id = response.getClickedButtonId();
+            }
+            formCallback.execute(this, id, null);
+            formCallback = null;
+        }
     }
 
 }

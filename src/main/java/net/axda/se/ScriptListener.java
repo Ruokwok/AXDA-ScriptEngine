@@ -4,6 +4,8 @@ import cn.nukkit.event.Event;
 import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.Listener;
 import cn.nukkit.event.player.*;
+import cn.nukkit.form.window.FormWindow;
+import cn.nukkit.form.window.FormWindowModal;
 import cn.nukkit.level.Location;
 import net.axda.se.api.game.ScriptPlayer;
 import net.axda.se.listen.ListenEvent;
@@ -68,6 +70,13 @@ public class ScriptListener implements Listener {
     @EventHandler
     public void playerSneak(PlayerToggleSneakEvent event) {
         ListenMap.call(ListenEvent.PlayerSneak.getValue(), loader.getPlayer(event.getPlayer()), event.isSneaking());
+    }
+
+    @EventHandler
+    public void playerFormResponded(PlayerFormRespondedEvent event) {
+        ScriptPlayer player = loader.getPlayer(event.getPlayer());
+        FormWindow window = event.getWindow();
+        player.executeFormCallback(window);
     }
 
 }

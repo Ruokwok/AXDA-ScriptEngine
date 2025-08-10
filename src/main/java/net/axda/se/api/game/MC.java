@@ -5,6 +5,8 @@ import cn.nukkit.Server;
 import cn.nukkit.command.ConsoleCommandSender;
 import net.axda.se.ScriptLoader;
 import net.axda.se.api.API;
+import net.axda.se.api.gui.CustomForm;
+import net.axda.se.api.gui.SimpleForm;
 import net.axda.se.exception.ValueTypeException;
 import net.axda.se.listen.Listen;
 import net.axda.se.listen.ListenEvent;
@@ -127,6 +129,16 @@ public class MC extends API {
         } catch (Exception e) {
             throw new ValueTypeException();
         }
+    }
+
+    @HostAccess.Export
+    public SimpleForm newSimpleForm() {
+        return new SimpleForm();
+    }
+
+    @HostAccess.Export
+    public CustomForm newCustomForm() {
+        return new CustomForm();
     }
 
 }

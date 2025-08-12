@@ -76,7 +76,7 @@ public class ScriptListener implements Listener {
     public void playerFormResponded(PlayerFormRespondedEvent event) {
         ScriptPlayer player = loader.getPlayer(event.getPlayer());
         FormWindow window = event.getWindow();
-        player.executeFormCallback(window);
+        player.executeFormCallback(window, event.getFormID());
     }
 
 }

@@ -6,9 +6,11 @@ import cn.nukkit.command.CommandSender;
 import cn.nukkit.event.player.PlayerChatEvent;
 import cn.nukkit.form.element.ElementButton;
 import cn.nukkit.form.element.ElementButtonImageData;
+import cn.nukkit.form.response.FormResponseCustom;
 import cn.nukkit.form.response.FormResponseModal;
 import cn.nukkit.form.response.FormResponseSimple;
 import cn.nukkit.form.window.FormWindow;
+import cn.nukkit.form.window.FormWindowCustom;
 import cn.nukkit.form.window.FormWindowModal;
 import cn.nukkit.form.window.FormWindowSimple;
 import cn.nukkit.level.Location;
@@ -24,14 +26,14 @@ import org.graalvm.polyglot.Value;
 import org.graalvm.polyglot.proxy.ProxyExecutable;
 import org.graalvm.polyglot.proxy.ProxyObject;
 
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 public class ScriptPlayer extends API implements ProxyObject, Pos {
 
     private Player player;
     private Server server = Server.getInstance();
     private Value formCallback;
+    private int formId = -114514;
 
     @Override
     public Object getMember(String key) {
@@ -465,7 +467,8 @@ public class ScriptPlayer extends API implements ProxyObject, Pos {
         String cancelButton = args[3].asString();
         this.formCallback = args[4];
         FormWindowModal form = new FormWindowModal(title, content, confirmButton, cancelButton);
-        return player.showFormWindow(form);
+        this.formId = player.showFormWindow(form);
+        return formId;
     }
 
     public int sendSimpleForm(Value... args) {
@@ -483,7 +486,8 @@ public class ScriptPlayer extends API implements ProxyObject, Pos {
                 form.addElement(new ElementButton(buttons.get(i)));
             }
         }
-        return player.showFormWindow(form);
+        this.formId = player.showFormWindow(form);
+        return formId;
     }
 
     public int sendCustomForm(Value... args) {
@@ -501,10 +505,12 @@ public class ScriptPlayer extends API implements ProxyObject, Pos {
     public int sendForm(Value... args) {
         Form form = args[0].as(Form.class);
         this.formCallback = args[1];
-        return player.showFormWindow(form.getForm());
+        this.formId = player.showFormWindow(form.getForm());
+        return formId;
     }
 
-    public void executeFormCallback(FormWindow window) {
+    public void executeFormCallback(FormWindow window, int formId) {
+        if (formId != this.formId) return;
         if (window instanceof FormWindowModal modal) {
             FormResponseModal response = modal.getResponse();
             Object id = null;
@@ -512,7 +518,6 @@ public class ScriptPlayer extends API implements ProxyObject, Pos {
                 id = response.getClickedButtonId() == 0;
             }
             formCallback.execute(this, id, null);
-            formCallback = null;
         } else if (window instanceof FormWindowSimple simple) {
             FormResponseSimple response = simple.getResponse();
             Object id = null;
@@ -520,8 +525,15 @@ public class ScriptPlayer extends API implements ProxyObject, Pos {
                 id = response.getClickedButtonId();
             }
             formCallback.execute(this, id, null);
-            formCallback = null;
+        } else if (window instanceof FormWindowCustom custom) {
+            FormResponseCustom response = custom.getResponse();
+            ArrayList<Object> data = null;
+            if (response != null) {
+                data = new ArrayList<>(response.getResponses().values());
+            }
+            formCallback.execute(this, data, null);
         }
+        formCallback = null;
     }
 
 }

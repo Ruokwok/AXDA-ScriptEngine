@@ -98,6 +98,56 @@ public class CustomForm implements Form {
         return this;
     }
 
+    @HostAccess.Export
+    public CustomForm addSlider(String title, int max, int min, int step, int def, String tooltip) {
+        ElementSlider slider = new ElementSlider(title, max, min, step);
+        this.form.addElement(slider);
+        return this;
+    }
+
+    @HostAccess.Export
+    public CustomForm addSlider(String title, int max, int min, int step, int def) {
+        this.addSlider(title, max, min, step, def, null);
+        return this;
+    }
+
+    @HostAccess.Export
+    public CustomForm addSlider(String title, int max, int min, int step) {
+        this.addSlider(title, max, min, step, 0, null);
+        return this;
+    }
+
+    @HostAccess.Export
+    public CustomForm addSlider(String title, int max, int min) {
+        this.addSlider(title, max, min, 1, 0, null);
+        return this;
+    }
+
+    @HostAccess.Export
+    public CustomForm addStepSlider(String title, List<String> items, int def, String tooltip) {
+        ElementStepSlider slider = new ElementStepSlider(title, items, def);
+        this.form.addElement(slider);
+        return this;
+    }
+
+    @HostAccess.Export
+    public CustomForm addStepSlider(String title, List<String> items, int def) {
+        this.addStepSlider(title, items, def, null);
+        return this;
+    }
+
+    @HostAccess.Export
+    public CustomForm addStepSlider(String title, List<String> items) {
+        this.addStepSlider(title, items, 0, null);
+        return this;
+    }
+
+    @HostAccess.Export
+    public CustomForm setSubmitButton(String text) {
+        form.setSubmitButtonText(text);
+        return this;
+    }
+
     @Override
     public String toJson() {
         return form.getJSONData();

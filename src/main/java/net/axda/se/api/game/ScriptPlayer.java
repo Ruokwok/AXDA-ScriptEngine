@@ -57,7 +57,7 @@ public class ScriptPlayer extends API implements ProxyObject, Pos {
             case "canSeeDaylight": return null;
             case "canShowNameTag": return null;
             case "canStartSleepInBed": return null;
-            case "canPickupItems": return player.getMaxHealth();
+            case "canPickupItems": return null;
             case "maxHealth": return player.getHealth();
             case "health": return null;
             case "inAir": return null;

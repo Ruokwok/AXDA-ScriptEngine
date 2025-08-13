@@ -22,12 +22,14 @@ public class AXDAScriptEngine extends PluginBase {
 
     @Override
     public void onEnable() {
-        getServer().getCommandMap().register("ase", new ASECommand());
-        ListenEvent.getAllEvents();
-        ScriptLoader.init();
-        ScriptLoader.getInstance().loadPlugins(PLUGIN_PATH);
-        listener = new ScriptListener();
-        getServer().getPluginManager().registerEvents(listener, this);
+        if (testEngine()) {
+            getServer().getCommandMap().register("ase", new ASECommand());
+            ListenEvent.getAllEvents();
+            ScriptLoader.init();
+            ScriptLoader.getInstance().loadPlugins(PLUGIN_PATH);
+            listener = new ScriptListener();
+            getServer().getPluginManager().registerEvents(listener, this);
+        }
     }
 
     @Override

@@ -276,7 +276,7 @@ public class ScriptPlayer extends API implements ProxyObject, Pos {
     public boolean tell(Value... args) throws ValueTypeException {
         if (args.length < 1) return false;
         try {
-            String msg = args[0].toString();
+            String msg = toString(args[0]);
             int type = (args.length < 2)? 0: args[1].asInt();
             switch (type) {
                 case 0: player.sendMessage(msg); return true;
@@ -293,7 +293,7 @@ public class ScriptPlayer extends API implements ProxyObject, Pos {
     public boolean setTitle(Value... args) {
         if (args.length == 0) return false;
         try {
-            String content = args[0].asString();
+            String content = toString(args[0]);
             int type = (args.length <= 2)? 2: args[1].asInt();
             int fadeInTime = (args.length <= 3)? 10: args[2].asInt();
             int stayTime = (args.length <= 4)? 70: args[3].asInt();
@@ -309,10 +309,6 @@ public class ScriptPlayer extends API implements ProxyObject, Pos {
         } catch (Exception e) {
             throw new ValueTypeException();
         }
-    }
-
-    public boolean broadcast(String msg, String type) {
-        return false;
     }
 
     @HostAccess.Export

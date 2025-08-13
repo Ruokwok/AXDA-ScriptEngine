@@ -1,6 +1,6 @@
 name: AXDA-ScriptEngine
 main: net.axda.se.AXDAScriptEngine
-version: 1.0.0
+version: ${project.version}
 api:
   - '1.0.0'
   - 'Nukkit-MOT'

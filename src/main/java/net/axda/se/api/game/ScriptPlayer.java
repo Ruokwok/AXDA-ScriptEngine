@@ -492,8 +492,11 @@ public class ScriptPlayer extends API implements ProxyObject, Pos {
 
     public int sendCustomForm(Value... args) {
         String json = args[0].asString();
+        FormWindowCustom form = new FormWindowCustom("");
+        form.setResponse(json);
         this.formCallback = args[1];
-        return 0;
+        this.formId = this.player.showFormWindow(form);
+        return formId;
     }
 
     public boolean closeForm(Value... args) {

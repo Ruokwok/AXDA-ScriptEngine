@@ -14,6 +14,7 @@ import net.axda.se.api.script.LL;
 import net.axda.se.api.script.Logger;
 import net.axda.se.api.system.ScriptFileUtils;
 import net.axda.se.api.system.ScriptSystem;
+import net.axda.se.api.system.ScriptWSClient;
 import net.axda.se.exception.ScriptExecuteException;
 import net.axda.se.listen.ListenMap;
 import org.graalvm.polyglot.Context;
@@ -44,7 +45,6 @@ public class ScriptEngine {
         this.scriptTask = scriptTask;
         this.context = Context.newBuilder("js")
                 .allowAllAccess(false)
-                .allowHostAccess(HostAccess.ALL)
                 .allowCreateThread(true)
                 .build();
         registerAPI();
@@ -72,6 +72,7 @@ public class ScriptEngine {
 
         //类
         js.putMember("KVDatabase", KVDatabase.class);
+        js.putMember("WSClient", ScriptWSClient.class);
         js.putMember("IntPos", IntPos.class);
         js.putMember("FloatPos", FloatPos.class);
     }

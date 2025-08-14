@@ -2,6 +2,7 @@ package net.axda.se.api.script;
 
 import cn.nukkit.Server;
 import cn.nukkit.utils.LogLevel;
+import com.google.gson.Gson;
 import net.axda.se.api.API;
 import org.apache.commons.io.FileUtils;
 import org.graalvm.polyglot.HostAccess;
@@ -10,6 +11,7 @@ import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Map;
 
 public class Logger extends API {
 
@@ -104,7 +106,11 @@ public class Logger extends API {
     private String getContent(Object[] data) {
         StringBuilder sb = getStringBuilder();
         for (Object s : data) {
-            sb.append(s.toString());
+            if (s instanceof Map<?,?> map) {
+                sb.append(new Gson().toJson(map));
+            } else {
+                sb.append(s.toString());
+            }
         }
         return sb.toString();
     }

@@ -27,6 +27,16 @@ ASE的KVDatabase接口虽然底层和LSE一样使用LevelDB实现，但是序列
 ## 已实现的API
 以下为ASE当前已实现的API接口列表，具体参数和返回值请参考LSE文档。
 ### Data API
+#### JSON 格式配置文件
+`var conf = new JsonConfigFile(path[,default])` 创建 / 打开一个 JSON 配置文件
+
+`conf.init(name,default)` 初始化配置项（方便函数）
+
+`conf.set(name,data)` 写入配置项
+
+`conf.get(name[,default])` 读取配置项
+
+`conf.delete(name)` 删除配置项
 #### KVDatabase
 `var kvdb = new KVDatabase(dir)` 创建一个KVDatabase对象
 

@@ -2,6 +2,7 @@ package net.axda.se;
 
 import cn.nukkit.Server;
 import cn.nukkit.scheduler.AsyncTask;
+import net.axda.se.api.data.JsonConfigFile;
 import net.axda.se.api.data.KVDatabase;
 import net.axda.se.api.function.ClearIntervalFunction;
 import net.axda.se.api.function.LogFunction;
@@ -18,7 +19,6 @@ import net.axda.se.api.system.ScriptWSClient;
 import net.axda.se.exception.ScriptExecuteException;
 import net.axda.se.listen.ListenMap;
 import org.graalvm.polyglot.Context;
-import org.graalvm.polyglot.HostAccess;
 import org.graalvm.polyglot.Value;
 
 import java.io.File;
@@ -71,6 +71,7 @@ public class ScriptEngine {
         js.putMember("clearInterval", new ClearIntervalFunction().setEngine(this));
 
         //类
+        js.putMember("JsonConfigFile", JsonConfigFile.class);
         js.putMember("KVDatabase", KVDatabase.class);
         js.putMember("WSClient", ScriptWSClient.class);
         js.putMember("IntPos", IntPos.class);

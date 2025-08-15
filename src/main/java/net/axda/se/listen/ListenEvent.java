@@ -16,6 +16,7 @@ public enum ListenEvent {
     PlayerChat("onChat"),
     PlayerChangeDim("onChangeDim"),
     PlayerSneak("onSneak"),
+    PlayerAttackEntity("onAttackEntity"),
     ;
 
     private static List<String> list;

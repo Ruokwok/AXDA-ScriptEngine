@@ -2,18 +2,40 @@ package net.axda.se.api.game;
 
 import cn.nukkit.entity.Entity;
 import cn.nukkit.level.Location;
-import net.axda.se.ScriptEngine;
+import net.axda.se.api.API;
 import net.axda.se.api.game.data.FloatPos;
 import net.axda.se.api.game.data.Pos;
 import org.graalvm.polyglot.Value;
 import org.graalvm.polyglot.proxy.ProxyObject;
 
-public class ScriptEntity implements ProxyObject, Pos {
+public class ScriptEntity extends API implements ProxyObject, Pos {
 
     private Entity entity;
 
-    public ScriptEntity(Entity entity) {
-        this.entity = entity;
+    @Override
+    public Object getMember(String key) {
+        switch (key) {
+            case "name": return entity.getName();
+            case "id": return entity.getId();
+            case "pos": return new FloatPos(entity.getX(), entity.getY(), entity.getZ(), entity.getLevel().getDimension(), entity.getLevel().getName());
+            case "type": return entity.getSaveId();
+        }
+        return null;
+    }
+
+    @Override
+    public Object getMemberKeys() {
+        return null;
+    }
+
+    @Override
+    public boolean hasMember(String key) {
+        return true;
+    }
+
+    @Override
+    public void putMember(String key, Value value) {
+
     }
 
     @Override
@@ -52,27 +74,17 @@ public class ScriptEntity implements ProxyObject, Pos {
     }
 
     @Override
-    public Object getMember(String key) {
-        switch (key) {
-            case "name": return entity.getName();
-            case "id": return entity.getId();
-            case "pos": return new FloatPos(entity.getX(), entity.getY(), entity.getZ(), entity.getLevel().getDimension(), entity.getLevel().getName());
+    public boolean equals(Object obj) {
+        if (obj instanceof ScriptEntity se) {
+            return this.entity == se.entity;
         }
-        return null;
-    }
-
-    @Override
-    public Object getMemberKeys() {
-        return null;
-    }
-
-    @Override
-    public boolean hasMember(String key) {
+        if (obj instanceof Entity e) {
+            return this.entity == e;
+        }
         return false;
     }
 
-    @Override
-    public void putMember(String key, Value value) {
-
+    public ScriptEntity(Entity entity) {
+        this.entity = entity;
     }
 }

@@ -1,12 +1,15 @@
 package net.axda.se;
 
+import cn.nukkit.Player;
 import cn.nukkit.event.Event;
 import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.Listener;
+import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.event.player.*;
 import cn.nukkit.form.window.FormWindow;
 import cn.nukkit.form.window.FormWindowModal;
 import cn.nukkit.level.Location;
+import net.axda.se.api.game.ScriptEntity;
 import net.axda.se.api.game.ScriptPlayer;
 import net.axda.se.listen.ListenEvent;
 import net.axda.se.listen.ListenMap;
@@ -77,6 +80,14 @@ public class ScriptListener implements Listener {
         ScriptPlayer player = loader.getPlayer(event.getPlayer());
         FormWindow window = event.getWindow();
         player.executeFormCallback(window, event.getFormID());
+    }
+
+    @EventHandler
+    public void playerAttackEntity(EntityDamageByEntityEvent event) {
+        if (event.getDamager() instanceof Player player) {
+            boolean c = ListenMap.call(ListenEvent.PlayerAttackEntity.getValue(), loader.getPlayer(player), new ScriptEntity(event.getEntity()));
+            if (!c) event.setCancelled(true);
+        }
     }
 
 }

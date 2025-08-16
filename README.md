@@ -87,6 +87,21 @@ ASE的KVDatabase接口虽然底层和LSE一样使用LevelDB实现，但是序列
 
 `Format` 格式化代码实用工具
 
+#### 实体对象API
+`en.name` 实体名称
+
+`en.type` 实体标准类型名
+
+`en.id` 实体的游戏内 id
+
+`en.feetPos` 实体腿部所在坐标
+
+`en.blockPos` 实体所在的方块坐标
+
+`en.maxHealth` 实体最大生命值
+
+`en.health` 玩家当前生命值
+
 #### 玩家对象API
 `var pl = mc.getPlayer(info)` 通过玩家信息手动生成玩家对象
 

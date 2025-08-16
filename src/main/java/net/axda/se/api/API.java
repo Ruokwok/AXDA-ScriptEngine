@@ -7,6 +7,7 @@ import net.axda.se.api.game.ScriptPlayer;
 import net.axda.se.api.game.data.Pos;
 import org.graalvm.polyglot.Value;
 
+import java.util.List;
 import java.util.Map;
 
 public class API {
@@ -29,13 +30,23 @@ public class API {
 
     public static String toString(Value value) {
         if (value.isString()) return value.asString();
+        if (isArray(value)) return gson.toJson(value.as(Object[].class));
         if (isMap(value)) return gson.toJson(value.as(Map.class));
         return value.toString();
     }
 
     public static boolean isMap(Value value) {
         try {
-            value.as(Map.class);
+            Map map = value.as(Map.class);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public static boolean isArray(Value value) {
+        try {
+            Object[] objects = value.as(Object[].class);
             return true;
         } catch (Exception e) {
             return false;

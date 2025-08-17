@@ -6,6 +6,8 @@ ASE可以在绝大部分JVM上运行(>=17)，在使用GraalVM时，需安装js�
 
 `gu install js`
 
+### 下载
+[MOTCI Jenkins](https://motci.cn/job/AXDA-ScriptEngine/)
 ### 安装脚本插件
 - JS脚本插件存放在 `plugins/` 目录下，启动服务器插件将会自动加载。
 

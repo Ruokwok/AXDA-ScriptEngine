@@ -5,7 +5,9 @@ import com.google.gson.Gson;
 import net.axda.se.ScriptEngine;
 import net.axda.se.api.game.ScriptPlayer;
 import net.axda.se.api.game.data.Pos;
+import net.axda.se.api.game.data.ProxyMap;
 import org.graalvm.polyglot.Value;
+import org.graalvm.polyglot.proxy.Proxy;
 
 import java.util.List;
 import java.util.Map;
@@ -13,7 +15,7 @@ import java.util.Map;
 public class API {
 
     protected ScriptEngine engine;
-    private static Gson gson = new Gson();
+    public static final Gson GSON = new Gson();
 
     public API setEngine(ScriptEngine engine) {
         this.engine = engine;
@@ -30,8 +32,7 @@ public class API {
 
     public static String toString(Value value) {
         if (value.isString()) return value.asString();
-        if (isArray(value)) return gson.toJson(value.as(Object[].class));
-        if (isMap(value)) return gson.toJson(value.as(Map.class));
+        if (isArray(value)) return GSON.toJson(value.as(Object[].class));
         return value.toString();
     }
 

@@ -1,12 +1,12 @@
 package net.axda.se.api.system;
 
 import net.axda.se.api.API;
+import net.axda.se.api.game.data.ProxyMap;
 import org.graalvm.polyglot.HostAccess;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -21,7 +21,7 @@ public class ScriptSystem extends API {
 
     @HostAccess.Export
     public Map<String, Integer> getTimeObj() {
-        HashMap<String, Integer> map = new HashMap<>();
+        ProxyMap<Integer> map = new ProxyMap<>();
         LocalDateTime now = LocalDateTime.now();
         map.put("Y", now.getYear());
         map.put("M", now.getMonthValue());

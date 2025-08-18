@@ -17,6 +17,14 @@ public enum ListenEvent {
     PlayerChangeDim("onChangeDim"),
     PlayerSneak("onSneak"),
     PlayerAttackEntity("onAttackEntity"),
+    PlayerAttackBlock("onAttackBlock"),
+    PlayerUseItemOn("onUseItemOn"),
+    PlayerUseItem("onUseItem"),
+    PlayerOnUseBucketPlace("onUseBucketPlace"),
+    PlayerOnUseBucketTake("onUseBucketTake"),
+    PlayerOnTakeItem("onTakeItem"),
+    PlayerOnDropItem("onDropItem"),
+    PlayerOnAte("onAte"),
     ;
 
     private static List<String> list;

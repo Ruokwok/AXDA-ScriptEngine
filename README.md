@@ -76,6 +76,24 @@ ASE的KVDatabase接口虽然底层和LSE一样使用LevelDB实现，但是序列
 
 `"onSneak"` 玩家切换潜行状态
 
+`onAttackEntity` 玩家攻击实体
+
+`onAttackBlock` 玩家攻击方块
+
+`onUseItemOn` 玩家对方块使用物品
+
+`onUseItem` 玩家使用物品
+
+`onUseBucketPlace` 玩家使用桶倒出东西
+
+`onUseBucketTake` 玩家使用桶装进东西
+
+`onTakeItem` 玩家捡起物品
+
+`onDropItem` 玩家丢出物品
+
+`onAte` 玩家吃下食物
+
 ### Game API
 #### 游戏元素对象 (数据类型)
 `IntPos` 整数坐标
@@ -85,6 +103,10 @@ ASE的KVDatabase接口虽然底层和LSE一样使用LevelDB实现，但是序列
 `Player` 玩家对象
 
 `Entity` 实体对象
+
+`Block` 方块对象
+
+`Item` 物品对象
 #### 游戏实用工具 API
 
 `Format` 格式化代码实用工具

@@ -1,16 +1,18 @@
 package net.axda.se;
 
 import cn.nukkit.Player;
-import cn.nukkit.event.Event;
 import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.Listener;
 import cn.nukkit.event.entity.EntityDamageByEntityEvent;
+import cn.nukkit.event.inventory.InventoryPickupItemEvent;
 import cn.nukkit.event.player.*;
 import cn.nukkit.form.window.FormWindow;
-import cn.nukkit.form.window.FormWindowModal;
 import cn.nukkit.level.Location;
+import net.axda.se.api.game.ScriptBlock;
 import net.axda.se.api.game.ScriptEntity;
+import net.axda.se.api.game.ScriptItem;
 import net.axda.se.api.game.ScriptPlayer;
+import net.axda.se.api.game.data.FloatPos;
 import net.axda.se.listen.ListenEvent;
 import net.axda.se.listen.ListenMap;
 
@@ -88,6 +90,77 @@ public class ScriptListener implements Listener {
             boolean c = ListenMap.call(ListenEvent.PlayerAttackEntity.getValue(), loader.getPlayer(player), new ScriptEntity(event.getEntity()));
             if (!c) event.setCancelled(true);
         }
+    }
+
+    @EventHandler
+    public void playerAttackBlock(PlayerInteractEvent event) {
+        if (event.getAction() == PlayerInteractEvent.Action.LEFT_CLICK_BLOCK) {
+            boolean c = ListenMap.call(ListenEvent.PlayerAttackBlock.getValue(),
+                    loader.getPlayer(event.getPlayer()),
+                    new ScriptBlock(event.getBlock()),
+                    new ScriptItem(event.getItem()));
+            if (!c) event.setCancelled(true);
+        } else if (event.getAction() == PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK) {
+            boolean c = ListenMap.call(ListenEvent.PlayerUseItemOn.getValue(),
+                    loader.getPlayer(event.getPlayer()),
+                    new ScriptBlock(event.getBlock()),
+                    new ScriptItem(event.getItem()),
+                    event.getFace().getIndex(),
+                    new FloatPos(event.getFace().getUnitVector(), event.getBlock().getLevel()));
+            if (!c) event.setCancelled(true);
+        } else if (event.getAction() == PlayerInteractEvent.Action.RIGHT_CLICK_AIR) {
+            boolean c = ListenMap.call(ListenEvent.PlayerUseItem.getValue(),
+                    loader.getPlayer(event.getPlayer()),
+                    new ScriptItem(event.getItem()));
+            if (!c) event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onUseBucketPlace(PlayerBucketEmptyEvent event) {
+        boolean c = ListenMap.call(ListenEvent.PlayerOnUseBucketPlace.getValue(),
+                loader.getPlayer(event.getPlayer()),
+                new ScriptItem(event.getItem()),
+                new ScriptBlock(event.getBlockClicked()),
+                event.getBlockFace().getIndex(),
+                new FloatPos(event.getBlockFace().getUnitVector(), event.getBlockClicked().getLevel()));
+        if (!c) event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onUseBucketTake(PlayerBucketFillEvent event) {
+        boolean c = ListenMap.call(ListenEvent.PlayerOnUseBucketTake.getValue(),
+                loader.getPlayer(event.getPlayer()),
+                new ScriptItem(event.getItem()),
+                new ScriptBlock(event.getBlockClicked()),
+                event.getBlockFace().getIndex(),
+                new FloatPos(event.getBlockFace().getUnitVector(), event.getBlockClicked().getLevel()));
+        if (!c) event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void playerOnTakeItem(InventoryPickupItemEvent event) {
+        boolean c = ListenMap.call(ListenEvent.PlayerOnTakeItem.getValue(),
+                loader.getPlayer(event.getViewers()[0]),
+                new ScriptEntity(event.getItem()),
+                new ScriptItem(event.getItem().getItem()));
+        if (!c) event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void playerOnDropItem(PlayerDropItemEvent event) {
+        boolean c = ListenMap.call(ListenEvent.PlayerOnDropItem.getValue(),
+                loader.getPlayer(event.getPlayer()),
+                new ScriptItem(event.getItem()));
+        if (!c) event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void playerOnAte(PlayerEatFoodEvent event) {
+        boolean c = ListenMap.call(ListenEvent.PlayerOnAte.getValue(),
+                loader.getPlayer(event.getPlayer()),
+                new ScriptItem(event.getPlayer().getInventory().getItemInHand()));
+        if (!c) event.setCancelled(true);
     }
 
 }

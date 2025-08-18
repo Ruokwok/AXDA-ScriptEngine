@@ -158,7 +158,12 @@ public class ScriptLoader {
         }
     }
 
-    public ScriptEngine getEngine(String threadName) {
-        return engines.get(threadName);
+    public ScriptEngine getEngine(String name) {
+        for (ScriptEngine engine : engines.values()) {
+            if (engine.getDescription().getName().equals(name)) {
+                return engine;
+            }
+        }
+        return null;
     }
 }

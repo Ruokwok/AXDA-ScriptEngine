@@ -4,6 +4,7 @@ import cn.nukkit.Server;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
 import cn.nukkit.math.Vector3;
+import net.axda.se.api.API;
 import org.graalvm.polyglot.HostAccess;
 
 public class IntPos implements Pos {
@@ -82,5 +83,10 @@ public class IntPos implements Pos {
     @Override
     public Location getLocation() {
         return new Location(x, y, z);
+    }
+
+    @Override
+    public String toString() {
+        return API.GSON.toJson(this);
     }
 }

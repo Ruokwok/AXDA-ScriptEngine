@@ -33,12 +33,13 @@ public class API {
     public static String toString(Value value) {
         if (value.isString()) return value.asString();
         if (isArray(value)) return GSON.toJson(value.as(Object[].class));
+        if (isPos(value)) return value.as(Pos.class).toString();
         return value.toString();
     }
 
-    public static boolean isMap(Value value) {
+    public static boolean isPos(Value value) {
         try {
-            Map map = value.as(Map.class);
+            Pos pos = value.as(Pos.class);
             return true;
         } catch (Exception e) {
             return false;

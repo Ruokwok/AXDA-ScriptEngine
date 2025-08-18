@@ -1,5 +1,6 @@
 package net.axda.se;
 
+import cn.nukkit.Server;
 import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.utils.TextFormat;
@@ -13,9 +14,10 @@ public class ASECommand extends Command {
     private Map<String, ScriptCommand> cmds = new HashMap<>();
 
     public ASECommand() {
-        super("ase");
+        super("ase", "AXDA-ScriptEngine command.");
         cmds.put("reload", this::reload);
         cmds.put("ls", this::ls);
+        cmds.put("unload", this::unload);
     }
 
     @Override
@@ -46,6 +48,7 @@ public class ASECommand extends Command {
         sender.sendMessage("Usage: /ase <command>");
         sender.sendMessage("reload    §aReload all JS plugin.");
         sender.sendMessage("ls        §aPrint loaded JS plugin list.");
+        sender.sendMessage("unload <plugin>  §aUnload a JS plugin");
         return true;
     }
 
@@ -61,6 +64,17 @@ public class ASECommand extends Command {
         }
         sender.sendMessage(sb.toString());
         return true;
+    }
+
+    public boolean unload(CommandSender sender, String[] args) {
+        ScriptEngine engine = ScriptLoader.getInstance().getEngine(args[1]);
+        if (engine != null) {
+            ScriptLoader.getInstance().disablePlugin(engine);
+            return true;
+        } else {
+            sender.sendMessage("Plugin '" + args[1] + "' not loaded.");
+            return false;
+        }
     }
 
     public interface ScriptCommand {

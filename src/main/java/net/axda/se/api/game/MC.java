@@ -141,4 +141,23 @@ public class MC extends API {
         return new CustomForm();
     }
 
+    @HostAccess.Export
+    public boolean regPlayerCmd(String cmd, String description, Value callback, int level) {
+        FakeCommand command = new FakeCommand(cmd, description, callback);
+        command.setLevel(level);
+        return server.getCommandMap().register(cmd, command);
+    }
+
+    @HostAccess.Export
+    public boolean regPlayerCmd(String cmd, String description, Value callback) {
+        return regPlayerCmd(cmd, description, callback, 0);
+    }
+
+    @HostAccess.Export
+    public boolean regConsoleCmd(String cmd, String description, Value callback) {
+        FakeCommand command = new FakeCommand(cmd, description, callback);
+        command.setConsole(true);
+        return server.getCommandMap().register(cmd, command);
+    }
+
 }

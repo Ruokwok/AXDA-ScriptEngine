@@ -1,3 +1,19 @@
+
+<p align="center">
+    <img height="165" src="ase_logo.png">
+</p>
+<p align="center">
+    <a href="https://github.com/Ruokwok/AXDA-ScriptEngine">
+        <img src="https://img.shields.io/github/stars/Ruokwok/AXDA-ScriptEngine?color=blue" alt="stars"/>
+    </a>
+    <a href="https://github.com/Ruokwok/AXDA-ScriptEngine/blob/master/LICENSE">
+        <img src="https://img.shields.io/github/license/Ruokwok/AXDA-ScriptEngine" alt="license"/>
+    </a>
+    <a href="https://github.com/Ruokwok/AXDA-ScriptEngine">
+        <img src="https://img.shields.io/badge/Version-1.0.0-blue" alt="version"/>
+    </a>
+</p>
+
 ## AXDA - Script Engine
 Nukkit-MOT平台上的JavaScript脚本插件加载器，基于GraalVM实现。
 兼容 [LegacyScriptEngine](https://lse.levimc.org/zh/)(LSE)的API。

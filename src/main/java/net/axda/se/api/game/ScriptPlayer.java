@@ -15,6 +15,7 @@ import cn.nukkit.form.window.FormWindowModal;
 import cn.nukkit.form.window.FormWindowSimple;
 import cn.nukkit.level.Location;
 import cn.nukkit.math.Vector3;
+import me.onebone.economyapi.EconomyAPI;
 import net.axda.se.api.game.data.FloatPos;
 import net.axda.se.api.game.data.IntPos;
 import net.axda.se.api.game.data.Pos;
@@ -191,6 +192,8 @@ public class ScriptPlayer extends API implements ProxyObject, Pos {
             case "sendCustomForm" -> (ProxyExecutable) this::sendCustomForm;
             case "closeForm" -> (ProxyExecutable) this::closeForm;
             case "sendForm" -> (ProxyExecutable) this::sendForm;
+
+            case "setMoney" -> (ProxyExecutable) this::setMoney;
             default -> null;
         };
     }
@@ -533,6 +536,33 @@ public class ScriptPlayer extends API implements ProxyObject, Pos {
             formCallback.execute(this, data, null);
         }
         formCallback = null;
+    }
+
+    @HostAccess.Export
+    public boolean setMoney(Value[] args) {
+        double value = args[0].asDouble();
+        int i = EconomyAPI.getInstance().setMoney(player, value);
+        return i == 1;
+    }
+
+    @HostAccess.Export
+    public double getMoney(Value[] args) {
+        double value = args[0].asDouble();
+        return EconomyAPI.getInstance().myMoney(player);
+    }
+
+    @HostAccess.Export
+    public boolean addMoney(Value[] args) {
+        double value = args[0].asDouble();
+        int i = EconomyAPI.getInstance().addMoney(player, value);
+        return i == 1;
+    }
+
+    @HostAccess.Export
+    public boolean reduceMoney(Value[] args) {
+        double value = args[0].asDouble();
+        int i = EconomyAPI.getInstance().reduceMoney(player, value);
+        return i == 1;
     }
 
 }

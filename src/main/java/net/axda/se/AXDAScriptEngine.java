@@ -1,6 +1,7 @@
 package net.axda.se;
 
 import cn.nukkit.Server;
+import cn.nukkit.plugin.Plugin;
 import cn.nukkit.plugin.PluginBase;
 import net.axda.se.listen.ListenEvent;
 import org.graalvm.polyglot.Context;
@@ -23,6 +24,7 @@ public class AXDAScriptEngine extends PluginBase {
     @Override
     public void onEnable() {
         if (testEngine()) {
+            testDepends();
             getServer().getCommandMap().register("ase", new ASECommand());
             ListenEvent.getAllEvents();
             ScriptLoader.init();
@@ -62,6 +64,20 @@ public class AXDAScriptEngine extends PluginBase {
             getLogger().error("The js module is not installed, please install it and try again.");
             getLogger().error("If you using GraalVM, please try execute command: gu install js");
             return false;
+        }
+    }
+
+    public void testDepends() {
+        Plugin kernel = getServer().getPluginManager().getPlugin("AXDA-Kernel");
+        for (Depends depend : Depends.values()) {
+            try {
+                Class.forName(depend.getClazz());
+            } catch (ClassNotFoundException e) {
+                getLogger().warning("Plugin '" + depend.getName() + "' is not installed, some JS api is unusable.");
+                if (kernel != null) {
+                    getLogger().warning("You can use the command to install: §aaxda install " + depend.getIndex());
+                }
+            }
         }
     }
 

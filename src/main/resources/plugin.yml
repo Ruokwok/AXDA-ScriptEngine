@@ -5,6 +5,9 @@ api:
   - '1.0.0'
   - 'Nukkit-MOT'
 load: STARTUP
+softdepend:
+  - AXDA-Kernel
+  - EconomyAPI
 author: Ruok
 description: AXDA ScriptEngine
 website: https://axda.net/

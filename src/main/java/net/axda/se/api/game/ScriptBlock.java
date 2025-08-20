@@ -20,4 +20,8 @@ public class ScriptBlock extends API implements ProxyAPI {
     }
 
 
+    @Override
+    public Object getOrigin() {
+        return block;
+    }
 }

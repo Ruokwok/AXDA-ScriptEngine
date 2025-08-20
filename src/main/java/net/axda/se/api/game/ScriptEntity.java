@@ -103,4 +103,8 @@ public class ScriptEntity extends API implements ProxyAPI, Pos {
         return (int) Math.floor(entity.getHealth());
     }
 
+    @Override
+    public Object getOrigin() {
+        return entity;
+    }
 }

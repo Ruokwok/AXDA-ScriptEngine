@@ -18,6 +18,7 @@ public interface ProxyAPI extends ProxyObject {
 
     @Override
     default Object getMember(String key) {
+        if (key.equals("..origin..")) return getOrigin();
         try {
             Method method = getClass().getMethod(key, Value[].class);
             if (method.isAnnotationPresent(HostAccess.Export.class)) {
@@ -70,4 +71,6 @@ public interface ProxyAPI extends ProxyObject {
     @Override
     default void putMember(String key, Value value) {
     }
+
+    Object getOrigin();
 }

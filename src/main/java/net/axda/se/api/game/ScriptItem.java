@@ -27,4 +27,13 @@ public class ScriptItem extends API implements ProxyAPI {
     public String name() {
         return item.getName();
     }
+
+    @Override
+    public Object getOrigin() {
+        return item;
+    }
+
+    public Item getItem() {
+        return item;
+    }
 }

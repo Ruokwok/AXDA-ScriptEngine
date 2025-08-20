@@ -31,8 +31,6 @@ import net.axda.se.exception.ValueTypeException;
 import net.axda.se.api.API;
 import org.graalvm.polyglot.HostAccess;
 import org.graalvm.polyglot.Value;
-import org.graalvm.polyglot.proxy.ProxyExecutable;
-import org.graalvm.polyglot.proxy.ProxyObject;
 
 import java.util.*;
 
@@ -375,7 +373,7 @@ public class ScriptPlayer extends API implements ProxyAPI, Pos {
     }
 
     @HostAccess.Export
-    public boolean isOP() {
+    public boolean isOP(Value... args) {
         return player.isOp();
     }
 
@@ -983,12 +981,14 @@ public class ScriptPlayer extends API implements ProxyAPI, Pos {
         return formId;
     }
 
+    @HostAccess.Export
     public boolean closeForm(Value... args) {
         player.closeFormWindows();
         formCallback = null;
         return true;
     }
 
+    @HostAccess.Export
     public int sendForm(Value... args) {
         Form form = args[0].as(Form.class);
         this.formCallback = args[1];

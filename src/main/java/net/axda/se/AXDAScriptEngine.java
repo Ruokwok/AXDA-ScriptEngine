@@ -70,9 +70,10 @@ public class AXDAScriptEngine extends PluginBase {
     public void testDepends() {
         Plugin kernel = getServer().getPluginManager().getPlugin("AXDA-Kernel");
         for (Depends depend : Depends.values()) {
-            try {
-                Class.forName(depend.getClazz());
-            } catch (ClassNotFoundException e) {
+//            try {
+//                Class.forName(depend.getClazz());
+//            } catch (ClassNotFoundException e) {
+            if (getServer().getPluginManager().getPlugin(depend.getName()) == null) {
                 getLogger().warning("Plugin '" + depend.getName() + "' is not installed, some JS api is unusable.");
                 if (kernel != null) {
                     getLogger().warning("You can use the command to install: §aaxda install " + depend.getIndex());

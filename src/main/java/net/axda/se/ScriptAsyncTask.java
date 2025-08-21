@@ -1,5 +1,6 @@
 package net.axda.se;
 
+import cn.nukkit.Server;
 import cn.nukkit.scheduler.AsyncTask;
 import org.graalvm.polyglot.Value;
 
@@ -7,7 +8,7 @@ import java.io.Closeable;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class ScriptAsyncTask extends AsyncTask implements Closeable {
+public class ScriptAsyncTask extends AsyncTask implements AutoCloseable {
 
     private Value value;
     private int interval;
@@ -23,6 +24,7 @@ public class ScriptAsyncTask extends AsyncTask implements Closeable {
      */
     public ScriptAsyncTask(Value value, int interval, ScriptEngine engine, boolean type) {
         super();
+        ScriptLoader.getInstance().putCloseable(this);
         this.value = value;
         this.interval = interval;
         this.engine = engine;
@@ -61,6 +63,7 @@ public class ScriptAsyncTask extends AsyncTask implements Closeable {
 
     @Override
     public void close() {
+        Server.getInstance().getScheduler().cancelTask(getTaskId());
         timer.cancel();
     }
 }

@@ -3,19 +3,14 @@ package net.axda.se.api;
 import cn.nukkit.Server;
 import com.google.gson.Gson;
 import net.axda.se.ScriptEngine;
-import net.axda.se.api.game.ScriptPlayer;
 import net.axda.se.api.game.data.Pos;
-import net.axda.se.api.game.data.ProxyMap;
 import org.graalvm.polyglot.Value;
-import org.graalvm.polyglot.proxy.Proxy;
-
-import java.util.List;
-import java.util.Map;
 
 public class API {
 
     protected ScriptEngine engine;
     public static final Gson GSON = new Gson();
+    private static int threadCounter = 0;
 
     public API setEngine(ScriptEngine engine) {
         this.engine = engine;
@@ -61,6 +56,10 @@ public class API {
         } else {
             return value.as(Pos.class);
         }
+    }
+
+    public static void setThreadName() {
+        Thread.currentThread().setName("js-" + ++threadCounter);
     }
 
 }

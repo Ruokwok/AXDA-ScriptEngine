@@ -13,6 +13,7 @@ import net.axda.se.api.game.data.FloatPos;
 import net.axda.se.api.game.data.IntPos;
 import net.axda.se.api.script.LL;
 import net.axda.se.api.script.Logger;
+import net.axda.se.api.system.Network;
 import net.axda.se.api.system.ScriptFileUtils;
 import net.axda.se.api.system.ScriptSystem;
 import net.axda.se.api.system.ScriptWSClient;
@@ -64,6 +65,7 @@ public class ScriptEngine {
         js.putMember("system", new ScriptSystem().setEngine(this));
         js.putMember("mc", new MC().setEngine(this));
         js.putMember("log", new LogFunction().setEngine(this));
+        js.putMember("network", Network.getInstance());
 
         //函数
         js.putMember("setInterval", new SetIntervalFunction().setEngine(this));

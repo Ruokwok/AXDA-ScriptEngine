@@ -1,11 +1,22 @@
 package net.axda.se.api.gui;
 
 import cn.nukkit.form.window.FormWindow;
+import org.graalvm.polyglot.Value;
 
-public interface Form {
+public abstract class Form {
 
-    abstract String toJson();
+    Value callback = null;
 
-    abstract FormWindow getForm();
+    public abstract String toJson();
+
+    public abstract FormWindow getForm();
+
+    public void setCallback(Value value) {
+        this.callback = value;
+    }
+
+    public Value getCallback() {
+        return callback;
+    }
 
 }

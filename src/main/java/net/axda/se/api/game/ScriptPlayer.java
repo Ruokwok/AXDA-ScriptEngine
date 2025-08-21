@@ -17,20 +17,22 @@ import cn.nukkit.form.window.FormWindowSimple;
 import cn.nukkit.level.Location;
 import cn.nukkit.level.biome.Biome;
 import cn.nukkit.math.Vector3;
-import cn.nukkit.potion.Effect;
-import com.oracle.truffle.api.library.ExportMessage;
 import me.onebone.economyapi.EconomyAPI;
 import net.axda.se.api.ProxyAPI;
 import net.axda.se.api.ProxyField;
 import net.axda.se.api.game.data.FloatPos;
 import net.axda.se.api.game.data.IntPos;
 import net.axda.se.api.game.data.Pos;
+import net.axda.se.api.gui.CustomForm;
 import net.axda.se.api.gui.Form;
+import net.axda.se.api.gui.ModalForm;
+import net.axda.se.api.gui.SimpleForm;
 import net.axda.se.exception.UnsupportedMemberException;
 import net.axda.se.exception.ValueTypeException;
 import net.axda.se.api.API;
 import org.graalvm.polyglot.HostAccess;
 import org.graalvm.polyglot.Value;
+import org.graalvm.polyglot.proxy.ProxyArray;
 
 import java.util.*;
 
@@ -38,7 +40,7 @@ public class ScriptPlayer extends API implements ProxyAPI, Pos {
 
     private Player player;
     private Server server = Server.getInstance();
-    private Value formCallback;
+    private Hashtable<Integer, Form> formCallback = new Hashtable<>();
     private int formId = -114514;
 
     public ScriptPlayer(Player player) {
@@ -939,15 +941,17 @@ public class ScriptPlayer extends API implements ProxyAPI, Pos {
         return false;
     }
 
-    @ExportMessage
+    @HostAccess.Export
     public int sendModalForm(Value... args) {
         String title = args[0].asString();
         String content = args[1].asString();
         String confirmButton = args[2].asString();
         String cancelButton = args[3].asString();
-        this.formCallback = args[4];
         FormWindowModal form = new FormWindowModal(title, content, confirmButton, cancelButton);
         this.formId = player.showFormWindow(form);
+        ModalForm modalForm = new ModalForm();
+        modalForm.setCallback(args[4]);
+        this.formCallback.put(formId, modalForm);
         return formId;
     }
 
@@ -957,7 +961,6 @@ public class ScriptPlayer extends API implements ProxyAPI, Pos {
         String content = args[1].asString();
         List<String> buttons = args[2].as(List.class);
         List<String> images = args[3].as(List.class);
-        this.formCallback = args[4];
         FormWindowSimple form = new FormWindowSimple(title, content);
         for (int i = 0; i < buttons.size(); i++) {
             if (images != null && images.get(i) != null) {
@@ -968,59 +971,62 @@ public class ScriptPlayer extends API implements ProxyAPI, Pos {
             }
         }
         this.formId = player.showFormWindow(form);
+        SimpleForm simpleForm = new SimpleForm();
+        simpleForm.setCallback(args[4]);
+        this.formCallback.put(formId, simpleForm);
         return formId;
     }
 
     @HostAccess.Export
     public int sendCustomForm(Value... args) {
-        String json = args[0].asString();
-        FormWindowCustom form = new FormWindowCustom("");
-        form.setResponse(json);
-        this.formCallback = args[1];
-        this.formId = this.player.showFormWindow(form);
-        return formId;
+        throw new UnsupportedMemberException("sendCustomForm");
     }
 
     @HostAccess.Export
     public boolean closeForm(Value... args) {
         player.closeFormWindows();
-        formCallback = null;
+        formCallback.clear();
         return true;
     }
 
     @HostAccess.Export
     public int sendForm(Value... args) {
         Form form = args[0].as(Form.class);
-        this.formCallback = args[1];
         this.formId = player.showFormWindow(form.getForm());
+        form.setCallback(args[1]);
+        this.formCallback.put(formId, form);
         return formId;
     }
 
     public void executeFormCallback(FormWindow window, int formId) {
-        if (formId != this.formId) return;
+        if (!formCallback.containsKey(formId)) return;
         if (window instanceof FormWindowModal modal) {
             FormResponseModal response = modal.getResponse();
             Object id = null;
             if (response != null) {
                 id = response.getClickedButtonId() == 0;
             }
-            formCallback.execute(this, id, null);
+            formCallback.get(formId).getCallback().execute(this, id, null);
         } else if (window instanceof FormWindowSimple simple) {
             FormResponseSimple response = simple.getResponse();
             Object id = null;
             if (response != null) {
                 id = response.getClickedButtonId();
             }
-            formCallback.execute(this, id, null);
+            formCallback.get(formId).getCallback().execute(this, id, null);
         } else if (window instanceof FormWindowCustom custom) {
             FormResponseCustom response = custom.getResponse();
-            ArrayList<Object> data = null;
+            ProxyArray data = null;
             if (response != null) {
-                data = new ArrayList<>(response.getResponses().values());
+//                data = ProxyArray.fromList(new ArrayList<>(response.getResponses().values()));
+//                HashMap<Integer, Object> responses = response.getResponses();
+                CustomForm form = (CustomForm) formCallback.get(formId);
+                List<Object> list = form.getResponse(response);
+                data = ProxyArray.fromList(list);
             }
-            formCallback.execute(this, data, null);
+            formCallback.get(formId).getCallback().execute(this, data, null);
         }
-        formCallback = null;
+        formCallback.remove(formId);
     }
 
     @HostAccess.Export

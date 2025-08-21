@@ -1,13 +1,16 @@
 package net.axda.se.api.gui;
 
 import cn.nukkit.form.element.*;
+import cn.nukkit.form.response.FormResponseCustom;
 import cn.nukkit.form.window.FormWindow;
 import cn.nukkit.form.window.FormWindowCustom;
 import org.graalvm.polyglot.HostAccess;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
-public class CustomForm implements Form {
+public class CustomForm extends Form {
 
     private FormWindowCustom form = new FormWindowCustom("Title");
 
@@ -156,5 +159,21 @@ public class CustomForm implements Form {
     @Override
     public FormWindow getForm() {
         return form;
+    }
+
+    public List<Object> getResponse(FormResponseCustom response) {
+        List<Object> values = new ArrayList<>(response.getResponses().values());
+        ArrayList<Object> list = new ArrayList<>();
+        List<Element> elements = form.getElements();
+        for (int i = 0; i < values.size(); i++) {
+            Element element = elements.get(i);
+            if (element instanceof ElementStepSlider stepSlider) {
+                int index = stepSlider.getSteps().indexOf(values.get(i));
+                list.add(index);
+            } else {
+                list.add(values.get(i));
+            }
+        }
+        return list;
     }
 }

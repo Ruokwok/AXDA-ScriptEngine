@@ -4,7 +4,7 @@ import cn.nukkit.form.element.*;
 import cn.nukkit.form.window.FormWindowSimple;
 import org.graalvm.polyglot.HostAccess;
 
-public class SimpleForm implements Form {
+public class SimpleForm extends Form {
 
     private FormWindowSimple form = new FormWindowSimple("Title", "Content");
 

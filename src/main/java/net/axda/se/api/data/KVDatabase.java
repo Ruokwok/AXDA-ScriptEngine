@@ -6,6 +6,7 @@ import net.axda.se.api.API;
 import org.apache.commons.io.FileUtils;
 import org.graalvm.polyglot.HostAccess;
 import org.graalvm.polyglot.Value;
+import org.graalvm.polyglot.proxy.ProxyArray;
 import org.iq80.leveldb.DB;
 import org.iq80.leveldb.Options;
 import org.iq80.leveldb.impl.Iq80DBFactory;
@@ -25,7 +26,6 @@ public class KVDatabase extends API implements AutoCloseable {
             File file = new File(url);
             if (!file.exists()) {
                 FileUtils.createParentDirectories(file);
-                file.createNewFile();
             }
             Iq80DBFactory factory = new Iq80DBFactory();
             this.db = factory.open(file, new Options().createIfMissing(true));
@@ -37,13 +37,15 @@ public class KVDatabase extends API implements AutoCloseable {
     @HostAccess.Export
     @Override
     public void close() throws IOException {
-        this.db.close();
+        if (db != null) {
+            this.db.close();
+        }
     }
 
     @HostAccess.Export
-    public void set(String key, Value value) {
-        if (key == null) return;
-        Object obj = value.toString();
+    public boolean set(String key, Value value) {
+        if (key == null) return false;
+        Object obj = toString(value);
         try {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             ObjectOutputStream oos = new ObjectOutputStream(bos);
@@ -51,8 +53,10 @@ public class KVDatabase extends API implements AutoCloseable {
             oos.flush();
             byte[] bytes = bos.toByteArray();
             this.db.put(key.getBytes(), bytes);
+            return true;
         } catch (IOException e) {
             Server.getInstance().getLogger().error("Failed to serialize object for key: " + key, e);
+            return false;
         }
     }
 
@@ -81,9 +85,9 @@ public class KVDatabase extends API implements AutoCloseable {
     }
 
     @HostAccess.Export
-    public List<String> listKey() {
+    public ProxyArray listKey() {
         if (db == null) return null;
-        List<String> keys = new ArrayList<>();
+        List<Object> keys = new ArrayList<>();
         try (var iterator = db.iterator()) {
             for (iterator.seekToFirst(); iterator.hasNext(); iterator.next()) {
                 byte[] keyBytes = iterator.peekNext().getKey();
@@ -93,6 +97,6 @@ public class KVDatabase extends API implements AutoCloseable {
         } catch (IOException e) {
             Server.getInstance().getLogger().error("Failed to list all keys", e);
         }
-        return keys;
+        return ProxyArray.fromList(keys);
     }
 }

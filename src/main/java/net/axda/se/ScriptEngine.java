@@ -41,6 +41,7 @@ public class ScriptEngine {
     private AsyncTask scriptTask;
     private String uuid = UUID.randomUUID().toString();
     private boolean executed = false;
+    private Value unloadFunction;
 
     public ScriptEngine(String script, File file, AsyncTask scriptTask) {
 //        Thread.currentThread().setName(getThreadName());
@@ -105,6 +106,9 @@ public class ScriptEngine {
     }
 
     public void disable() {
+        if (unloadFunction != null) {
+            unloadFunction.executeVoid();
+        }
         this.context.close();
         ListenMap.remove(this);
         for (Task task: tasks) {
@@ -155,6 +159,10 @@ public class ScriptEngine {
 
     public void putTask(Task task) {
         tasks.add(task);
+    }
+
+    public void setUnloadFunction(Value value) {
+        this.unloadFunction = value;
     }
 
     @Override

@@ -4,6 +4,7 @@ import cn.nukkit.Server;
 import net.axda.se.AXDAScriptEngine;
 import net.axda.se.api.API;
 import org.graalvm.polyglot.HostAccess;
+import org.graalvm.polyglot.Value;
 
 import java.util.Map;
 
@@ -73,6 +74,11 @@ public class LL extends API {
     @HostAccess.Export
     public String versionString() {
         return AXDAScriptEngine.getPlugin().getDescription().getVersion();
+    }
+
+    @HostAccess.Export
+    public void onUnload(Value value) {
+        engine.setUnloadFunction(value);
     }
 
 }

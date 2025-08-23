@@ -13,6 +13,7 @@ import net.axda.se.listen.ListenEvent;
 import net.axda.se.listen.ListenMap;
 import org.graalvm.polyglot.HostAccess;
 import org.graalvm.polyglot.Value;
+import org.graalvm.polyglot.proxy.ProxyArray;
 
 import java.util.*;
 
@@ -73,7 +74,20 @@ public class MC extends API {
     @HostAccess.Export
     public ScriptPlayer getPlayer(String info) {
         Player player = server.getPlayer(info);
-        if (player == null) server.getPlayer(UUID.fromString(info));
+        Map<UUID, Player> players = Server.getInstance().getOnlinePlayers();
+        for (Player pl : players.values()) {
+            if (pl.getLoginChainData().getXUID().equals(info)) {
+                player = pl;
+                break;
+            }
+        }
+        if (player == null) {
+            try {
+                Optional<Player> pl = server.getPlayer(UUID.fromString(info));
+                player = pl.get();
+            } catch (Exception e) {
+            }
+        }
         if (player != null) {
             return ScriptLoader.getInstance().getPlayer(player);
         }
@@ -86,8 +100,9 @@ public class MC extends API {
     }
 
     @HostAccess.Export
-    public List<ScriptPlayer> getOnlinePlayers() {
-        return ScriptLoader.getInstance().getOnlinePlayers();
+    public ProxyArray getOnlinePlayers() {
+        List<ScriptPlayer> players = ScriptLoader.getInstance().getOnlinePlayers();
+        return ProxyArray.fromList(new ArrayList<>(players));
     }
 
     @HostAccess.Export

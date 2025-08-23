@@ -62,4 +62,8 @@ public class API {
         Thread.currentThread().setName("js-" + ++threadCounter);
     }
 
+    public static int msToTick(int ms) {
+        return (int) ((ms / 1000) * Server.getInstance().getTicksPerSecond());
+    }
+
 }

@@ -7,9 +7,12 @@ import cn.nukkit.command.CommandSender;
 import cn.nukkit.command.SimpleCommandMap;
 import net.axda.se.ScriptLoader;
 import org.graalvm.polyglot.Value;
+import org.graalvm.polyglot.proxy.ProxyArray;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 public class FakeCommand extends Command implements AutoCloseable {
@@ -63,9 +66,9 @@ public class FakeCommand extends Command implements AutoCloseable {
 
     public boolean executeCallback(Player player, String[] args) {
         if (player == null) {
-            callback.executeVoid(args);
+            callback.executeVoid(ProxyArray.fromList(List.of(args)));
         } else {
-            callback.executeVoid(loader.getPlayer(player), args);
+            callback.executeVoid(loader.getPlayer(player), ProxyArray.fromList(List.of(args)));
         }
         return true;
     }

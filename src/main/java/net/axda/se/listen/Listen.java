@@ -30,6 +30,7 @@ public class Listen {
             engine.getContext().enter();
             Value execute = value.execute(args);
             engine.getContext().leave();
+//            Value execute = engine.execute(value);
             if (execute.isBoolean() && !execute.asBoolean()) return false;
         } catch (Exception e) {
             MainLogger.getLogger().logException(e);

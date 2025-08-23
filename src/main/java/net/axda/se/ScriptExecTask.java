@@ -31,7 +31,7 @@ public class ScriptExecTask extends AsyncTask {
     public void onRun() {
         try {
             ScriptLoader.getInstance().putEngine(this.engine);
-            this.engine.execute();
+            this.engine.execute(null);
         } catch (Exception e) {
             Server.getInstance().getLogger().logException(e);
             Server.getInstance().getLogger().error("JavaScript plugin failed to load: " + this.engine.getDescription().getFile().getName());

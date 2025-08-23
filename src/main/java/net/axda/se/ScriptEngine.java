@@ -2,6 +2,7 @@ package net.axda.se;
 
 import cn.nukkit.Server;
 import cn.nukkit.scheduler.AsyncTask;
+import cn.nukkit.scheduler.Task;
 import net.axda.se.api.data.JsonConfigFile;
 import net.axda.se.api.data.KVDatabase;
 import net.axda.se.api.function.ClearIntervalFunction;
@@ -35,10 +36,11 @@ public class ScriptEngine {
     private Context context;
     private ScriptDescription description;
     private Map<String, Value> listeners = new HashMap<>();
-    private List<Integer> tasks = new ArrayList<>();
+    private List<Task> tasks = new ArrayList<>();
     private List<AutoCloseable> closeables = new ArrayList<>();
     private AsyncTask scriptTask;
     private String uuid = UUID.randomUUID().toString();
+    private boolean executed = false;
 
     public ScriptEngine(String script, File file, AsyncTask scriptTask) {
 //        Thread.currentThread().setName(getThreadName());
@@ -80,13 +82,23 @@ public class ScriptEngine {
         js.putMember("FloatPos", FloatPos.class);
     }
 
-    public void execute() throws ScriptExecuteException {
+    public synchronized Value execute(Value value) throws ScriptExecuteException {
         try {
-            context.enter();
-            context.eval("js", ScriptLoader.getInstance().getRuntime());
-            context.eval("js", SCRIPT);
-            context.leave();
-            Server.getInstance().getLogger().info("Loaded " + getDescription().getName() + " v" + getDescription().getVersionStr());
+            if (value == null) {
+                if (executed) throw new RuntimeException("JS plugin context has already been executed.");
+                executed = true;
+                context.enter();
+                context.eval("js", ScriptLoader.getInstance().getRuntime());
+                context.eval("js", SCRIPT);
+                context.leave();
+                Server.getInstance().getLogger().info("Loaded " + getDescription().getName() + " v" + getDescription().getVersionStr());
+            } else {
+                context.enter();
+                Value back = value.execute();
+                context.leave();
+                return back;
+            }
+            return null;
         } catch (Exception e) {
             throw new ScriptExecuteException(e, getDescription().getFile().getPath());
         }
@@ -95,8 +107,8 @@ public class ScriptEngine {
     public void disable() {
         this.context.close();
         ListenMap.remove(this);
-        for (int taskId: tasks) {
-            Server.getInstance().getScheduler().cancelTask(taskId);
+        for (Task task: tasks) {
+            task.cancel();
         }
         tasks.clear();
         for (AutoCloseable closeable: closeables) {
@@ -139,6 +151,10 @@ public class ScriptEngine {
 
     public AsyncTask getTask() {
         return this.scriptTask;
+    }
+
+    public void putTask(Task task) {
+        tasks.add(task);
     }
 
     @Override

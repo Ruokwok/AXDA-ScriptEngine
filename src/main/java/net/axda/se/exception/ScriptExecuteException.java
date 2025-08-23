@@ -1,22 +1,19 @@
 package net.axda.se.exception;
 
-public class ScriptExecuteException extends Exception {
+public class ScriptExecuteException extends RuntimeException {
 
-    private Exception e;
     private String path;
 
     public ScriptExecuteException(Exception e, String path) {
-        super(e.getMessage());
-        this.e = e;
+        super(e);
         this.path = path;
     }
 
     public ScriptExecuteException() {
     }
 
-    @Override
-    public String getMessage() {
-        if (e != null) return "An error occurred while executing this JavaScript plugin: "+ path + "\n" + e.getMessage();
-        return super.getMessage();
-    }
+//    @Override
+//    public String getMessage() {
+//        return "An error occurred while executing this JavaScript plugin: "+ path + "\n" + getMessage();
+//    }
 }

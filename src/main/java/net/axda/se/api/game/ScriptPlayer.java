@@ -651,7 +651,7 @@ public class ScriptPlayer extends API implements ProxyAPI, Pos {
 
     @HostAccess.Export
     public Object getDevice(Value... args) {
-        throw new UnsupportedMemberException("getDevice");
+        return new Device(player);
     }
 
     @HostAccess.Export

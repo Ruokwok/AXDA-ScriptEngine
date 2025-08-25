@@ -5,14 +5,22 @@ import cn.nukkit.Server;
 import cn.nukkit.scheduler.TaskHandler;
 import cn.nukkit.utils.LogLevel;
 import cn.nukkit.utils.Logger;
+import cn.nukkit.utils.MainLogger;
 import cn.nukkit.utils.Utils;
 import net.axda.se.api.game.ScriptPlayer;
 import net.axda.se.api.script.LL;
 import net.axda.se.listen.ListenMap;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
+import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
 
 public class ScriptLoader {
 
@@ -46,6 +54,7 @@ public class ScriptLoader {
     }
 
     public void loadPlugins(File path) {
+        unzipAll();
         for (File file : path.listFiles()) {
             if (file.isFile() && file.getName().endsWith(".js")) {
                 ScriptLoader.getInstance().loadPlugin(file);
@@ -166,4 +175,87 @@ public class ScriptLoader {
         }
         return null;
     }
+
+    public void unzipAll() {
+        File[] list = AXDAScriptEngine.PLUGIN_PATH.listFiles();
+        for (File file : list) {
+            if (file.isFile() && file.getName().endsWith(".zip")) {
+                unzip(file);
+            }
+        }
+    }
+
+    public void unzip(File zipFile) {
+        try (ZipFile zip = new ZipFile(zipFile)) {
+            ArrayList<String> list = new ArrayList<>();
+            zip.stream().forEach(entry -> {
+                if (entry.getName().endsWith("/manifest.json")) {
+                    String path = entry.getName().replace("/manifest.json", "/");
+                    list.add(path);
+                }
+            });
+            for (String path : list) {
+                extractDirectory(zipFile, path, "plugins/" + path);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 解压ZIP文件中的指定目录
+     * @param zipFile ZIP文件
+     * @param sourceDirectory ZIP中的源目录（如 "scripts/"）
+     * @param targetDirectory 目标目录路径
+     */
+    public void extractDirectory(File zipFile, String sourceDirectory, String targetDirectory) {
+        try (ZipFile zip = new ZipFile(zipFile)) {
+            // 标准化目录路径（确保以/结尾）
+            String normalizedSourceDir = sourceDirectory;
+            if (!normalizedSourceDir.endsWith("/")) {
+                normalizedSourceDir += "/";
+            }
+
+            // 创建目标目录
+            Path targetPath = Paths.get(targetDirectory);
+            if (!Files.exists(targetPath)) {
+                Files.createDirectories(targetPath);
+            } else {
+                return;
+            }
+
+            // 提取指定目录下的所有文件
+            String finalNormalizedSourceDir = normalizedSourceDir;
+            String finalNormalizedSourceDir1 = normalizedSourceDir;
+            zip.stream()
+                    .filter(entry -> !entry.isDirectory())
+                    .filter(entry -> entry.getName().startsWith(finalNormalizedSourceDir))
+                    .forEach(entry -> {
+                        try {
+                            // 计算相对路径
+                            String relativePath = entry.getName().substring(finalNormalizedSourceDir1.length());
+                            Path outputPath = targetPath.resolve(relativePath).normalize();
+
+                            // 安全检查：确保输出路径在目标目录内
+                            if (outputPath.startsWith(targetPath)) {
+                                // 创建父目录
+                                Files.createDirectories(outputPath.getParent());
+
+                                // 解压文件
+                                try (InputStream is = zip.getInputStream(entry)) {
+                                    Files.copy(is, outputPath, StandardCopyOption.REPLACE_EXISTING);
+                                }
+                                AXDAScriptEngine.getPlugin().getLogger().info("Unzip: " + entry.getName());
+                            } else {
+                                AXDAScriptEngine.getPlugin().getLogger().warning("Security warning. Skipping unsafe path: " + entry.getName());
+                            }
+                        } catch (IOException e) {
+                            MainLogger.getLogger().logException(e);
+                        }
+                    });
+        } catch (Exception e) {
+            MainLogger.getLogger().logException(e);
+        }
+    }
+
 }

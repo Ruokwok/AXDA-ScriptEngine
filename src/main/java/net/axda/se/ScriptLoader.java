@@ -7,6 +7,7 @@ import cn.nukkit.utils.LogLevel;
 import cn.nukkit.utils.Logger;
 import cn.nukkit.utils.MainLogger;
 import cn.nukkit.utils.Utils;
+import net.axda.se.api.API;
 import net.axda.se.api.game.ScriptPlayer;
 import net.axda.se.api.script.LL;
 import net.axda.se.listen.ListenMap;
@@ -56,7 +57,7 @@ public class ScriptLoader {
     public void loadPlugins(File path) {
         unzipAll();
         for (File file : path.listFiles()) {
-            if (file.isFile() && file.getName().endsWith(".js")) {
+            if ((file.isFile() && file.getName().endsWith(".js")) || file.isDirectory()) {
                 ScriptLoader.getInstance().loadPlugin(file);
             }
         }
@@ -64,9 +65,19 @@ public class ScriptLoader {
 
     public void loadPlugin(File file) {
         try {
-            String script = Utils.readFile(file);
-            loadPlugin(script, file);
-        } catch (IOException e) {
+            if (file.isFile()) {
+                String script = Utils.readFile(file);
+                loadPlugin(script, file);
+            } else {
+                File meta = new File(file + "/manifest.json");
+                if (meta.exists()) {
+                    String s = Utils.readFile(meta);
+                    Manifest manifest = API.GSON.fromJson(s, Manifest.class);
+                    String script = Utils.readFile(file + "/" + manifest.entry);
+                    loadPlugin(script, new File(file + "/" + manifest.entry), manifest);
+                }
+            }
+        } catch (Exception e) {
             logger.log(LogLevel.ERROR, "Read file failed: " + file.getName(), e);
         }
     }
@@ -75,15 +86,19 @@ public class ScriptLoader {
         loadPlugin(script, null);
     }
 
-    public void loadPlugin(String script, File file) {
+    public void loadPlugin(String script, File file, Manifest manifest) {
         counter++;
-        ScriptExecTask task = new ScriptExecTask(counter, script, file);
+        ScriptExecTask task = new ScriptExecTask(counter, script, file, manifest);
 //        TaskHandler taskHandler = Server.getInstance().getScheduler().scheduleAsyncTask(AXDAScriptEngine.getPlugin(), task);
 //        task.setTaskId(taskHandler.getTaskId());
         this.nowEngine = task.getEngine();
         putEngine(task.getEngine());
         task.onRun();
         this.nowEngine = null;
+    }
+
+    public void loadPlugin(String script, File file) {
+        loadPlugin(script, file, null);
     }
 
     protected void putEngine(ScriptEngine engine) {

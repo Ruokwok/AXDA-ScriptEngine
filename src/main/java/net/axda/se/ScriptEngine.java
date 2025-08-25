@@ -1,7 +1,6 @@
 package net.axda.se;
 
 import cn.nukkit.Server;
-import cn.nukkit.scheduler.AsyncTask;
 import cn.nukkit.scheduler.Task;
 import net.axda.se.api.data.JsonConfigFile;
 import net.axda.se.api.data.KVDatabase;
@@ -38,15 +37,15 @@ public class ScriptEngine {
     private Map<String, Value> listeners = new HashMap<>();
     private List<Task> tasks = new ArrayList<>();
     private List<AutoCloseable> closeables = new ArrayList<>();
-    private AsyncTask scriptTask;
+    private Manifest manifest;
     private String uuid = UUID.randomUUID().toString();
     private boolean executed = false;
     private Value unloadFunction;
 
-    public ScriptEngine(String script, File file, AsyncTask scriptTask) {
+    public ScriptEngine(String script, File file, Manifest manifest) {
 //        Thread.currentThread().setName(getThreadName());
         this.SCRIPT = script;
-        this.scriptTask = scriptTask;
+        this.manifest = manifest;
         this.context = Context.newBuilder("js")
                 .allowAllAccess(false)
                 .allowCreateThread(true)
@@ -54,6 +53,9 @@ public class ScriptEngine {
         registerAPI();
         this.description = new ScriptDescription();
         this.description.setFile(file);
+        if (manifest != null) {
+            this.description.setName(manifest.name);
+        }
     }
 
     /**
@@ -123,7 +125,6 @@ public class ScriptEngine {
             }
         }
         closeables.clear();
-        Server.getInstance().getScheduler().cancelTask(scriptTask.getTaskId());
         Server.getInstance().getLogger().info("Unloaded " + getDescription().getName() + " v" + getDescription().getVersionStr());
     }
 
@@ -151,10 +152,6 @@ public class ScriptEngine {
 
     public String getUUID() {
         return uuid;
-    }
-
-    public AsyncTask getTask() {
-        return this.scriptTask;
     }
 
     public void putTask(Task task) {

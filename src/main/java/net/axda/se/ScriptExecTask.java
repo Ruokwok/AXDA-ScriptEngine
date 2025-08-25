@@ -16,8 +16,8 @@ public class ScriptExecTask extends AsyncTask {
     private final File file;
     private ScriptEngine engine;
 
-    public ScriptExecTask(int threadId, String script, File file) {
-        this.engine = new ScriptEngine(script, file, this);
+    public ScriptExecTask(int threadId, String script, File file, Manifest manifest) {
+        this.engine = new ScriptEngine(script, file, manifest);
         this.threadId = threadId;
         this.script = script;
         this.file = file;

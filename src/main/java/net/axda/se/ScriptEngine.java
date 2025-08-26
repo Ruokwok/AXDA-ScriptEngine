@@ -2,6 +2,7 @@ package net.axda.se;
 
 import cn.nukkit.Server;
 import cn.nukkit.scheduler.Task;
+import cn.nukkit.utils.MainLogger;
 import net.axda.se.api.data.JsonConfigFile;
 import net.axda.se.api.data.KVDatabase;
 import net.axda.se.api.function.ClearIntervalFunction;
@@ -21,6 +22,7 @@ import net.axda.se.exception.ScriptExecuteException;
 import net.axda.se.listen.ListenMap;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Value;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.*;
@@ -31,6 +33,7 @@ import java.util.*;
  */
 public class ScriptEngine {
 
+    private static final org.slf4j.Logger log = LoggerFactory.getLogger(ScriptEngine.class);
     private final String SCRIPT;
     private Context context;
     private ScriptDescription description;
@@ -41,6 +44,7 @@ public class ScriptEngine {
     private String uuid = UUID.randomUUID().toString();
     private boolean executed = false;
     private Value unloadFunction;
+    private MainLogger logger = Server.getInstance().getLogger();
 
     public ScriptEngine(String script, File file, Manifest manifest) {
 //        Thread.currentThread().setName(getThreadName());
@@ -103,7 +107,8 @@ public class ScriptEngine {
             }
             return null;
         } catch (Exception e) {
-            throw new ScriptExecuteException(e, getDescription().getFile().getPath());
+            logException(new ScriptExecuteException(e));
+            return null;
         }
     }
 
@@ -121,11 +126,31 @@ public class ScriptEngine {
             try {
                 closeable.close();
             } catch (Exception e) {
-                Server.getInstance().getLogger().logException(e);
+                logException(e);
             }
         }
         closeables.clear();
         Server.getInstance().getLogger().info("Unloaded " + getDescription().getName() + " v" + getDescription().getVersionStr());
+    }
+
+    public void logException(Throwable e) {
+        if (e.getMessage().startsWith("net.axda.se.exception.")) {
+            logExceptionTitle(e.getMessage());
+            logger.logException(e);
+            return;
+        }
+        if (e instanceof ScriptExecuteException see) {
+            Throwable cause = see.getCause();
+            logExceptionTitle(cause.getMessage());
+            logger.logException(cause);
+        } else {
+            logExceptionTitle(e.getMessage());
+            Server.getInstance().getLogger().logException(e);
+        }
+    }
+
+    public void logExceptionTitle(String e) {
+        logger.error(e + ": " + getDescription().getName() + " (" + getDescription().getFile() + ")");
     }
 
     public void registerEvent(String event, Value callback) {

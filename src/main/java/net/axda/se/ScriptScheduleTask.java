@@ -15,7 +15,11 @@ public class ScriptScheduleTask extends Task {
 
     @Override
     public void onRun(int i) {
-        engine.execute(value);
+        try {
+            engine.execute(value);
+        } catch (Exception e) {
+            engine.logException(e);
+        }
     }
 
     public void close() throws Exception {

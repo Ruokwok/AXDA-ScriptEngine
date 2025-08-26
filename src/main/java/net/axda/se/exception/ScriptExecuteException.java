@@ -2,11 +2,8 @@ package net.axda.se.exception;
 
 public class ScriptExecuteException extends RuntimeException {
 
-    private String path;
-
-    public ScriptExecuteException(Exception e, String path) {
+    public ScriptExecuteException(Exception e) {
         super(e);
-        this.path = path;
     }
 
     public ScriptExecuteException() {

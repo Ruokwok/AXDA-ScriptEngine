@@ -33,7 +33,7 @@ public class Listen {
 //            Value execute = engine.execute(value);
             if (execute.isBoolean() && !execute.asBoolean()) return false;
         } catch (Exception e) {
-            MainLogger.getLogger().logException(e);
+            engine.logException(e);
         }
         return true;
     }

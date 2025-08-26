@@ -1,10 +1,12 @@
 package net.axda.se.api;
 
+import net.axda.se.exception.ScriptExecuteException;
 import org.graalvm.polyglot.HostAccess;
 import org.graalvm.polyglot.Value;
 import org.graalvm.polyglot.proxy.ProxyExecutable;
 import org.graalvm.polyglot.proxy.ProxyObject;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 
@@ -25,10 +27,11 @@ public interface ProxyAPI extends ProxyObject {
                 return (ProxyExecutable) arguments -> {
                     try {
                         return method.invoke(ProxyAPI.this, (Object) arguments);
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                    } catch (InvocationTargetException e) {
+                        throw new RuntimeException(e.getTargetException());
+                    } catch (IllegalAccessException e) {
+                        throw new RuntimeException(e);
                     }
-                    return null;
                 };
             }
         } catch (Exception e) {

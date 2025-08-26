@@ -11,6 +11,7 @@ import org.graalvm.polyglot.Value;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,21 +24,18 @@ public class JsonConfigFile extends API {
     private Map<String, Object> data;
 
     @HostAccess.Export
-    public JsonConfigFile(String path, String def) {
+    public JsonConfigFile(String path, String def) throws IOException {
         this.file = new File(path);
         if (!file.exists()) {
-            try {
-                FileUtils.forceMkdirParent(file);
-                write(def);
-            } catch (Exception e) {
-                MainLogger.getLogger().logException(e);
-            }
+            FileUtils.forceMkdirParent(file);
+            write(def);
         }
         data = gson.fromJson(read(), Map.class);
+        if (data == null) data = new HashMap<>();
     }
 
     @HostAccess.Export
-    public JsonConfigFile(String path) {
+    public JsonConfigFile(String path) throws IOException {
         this(path, "");
     }
 

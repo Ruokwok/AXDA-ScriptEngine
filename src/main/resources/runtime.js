@@ -28,3 +28,8 @@ const Format = {
     Clear: "§r",
 };
 Object.freeze(Format);
+const PermType = {
+    Any: 0,
+    GameMasters: 1,
+    Console: 4
+};

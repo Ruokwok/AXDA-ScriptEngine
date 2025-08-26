@@ -274,4 +274,8 @@ public class ScriptLoader {
         }
     }
 
+    public void logException(Throwable e) {
+        nowEngine.logException(e);
+    }
+
 }

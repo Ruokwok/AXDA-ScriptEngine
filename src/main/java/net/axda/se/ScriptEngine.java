@@ -141,6 +141,9 @@ public class ScriptEngine {
         }
         if (e instanceof ScriptExecuteException see) {
             Throwable cause = see.getCause();
+            if (cause == null) {
+                cause = see;
+            }
             logExceptionTitle(cause.getMessage());
             logger.logException(cause);
         } else {

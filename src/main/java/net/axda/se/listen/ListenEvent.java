@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 public enum ListenEvent {
 
+    ServerStarted("onServerStarted"),
     PlayerPreJoin("onPreJoin"),
     PlayerOnJoin("onJoin"),
     PlayerOnLeft("onLeft"),

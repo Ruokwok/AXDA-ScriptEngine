@@ -61,6 +61,7 @@ public class ScriptLoader {
                 ScriptLoader.getInstance().loadPlugin(file);
             }
         }
+        ListenMap.call("onServerStarted");
     }
 
     public void loadPlugin(File file) {

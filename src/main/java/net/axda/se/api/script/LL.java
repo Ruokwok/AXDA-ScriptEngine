@@ -6,6 +6,7 @@ import net.axda.se.api.API;
 import org.graalvm.polyglot.HostAccess;
 import org.graalvm.polyglot.Value;
 
+import java.util.Arrays;
 import java.util.Map;
 
 public class LL extends API {
@@ -54,7 +55,7 @@ public class LL extends API {
         Server server = Server.getInstance();
         this.language = server.getLanguage().getLang();
         AXDAScriptEngine plugin = AXDAScriptEngine.getPlugin();
-        int[] version = plugin.getVersion();
+        int[] version = plugin.getVersion(null);
         this.major = version[0];
         this.minor = version[1];
         this.revision = version[2];
@@ -79,6 +80,12 @@ public class LL extends API {
     @HostAccess.Export
     public void onUnload(Value value) {
         engine.setUnloadFunction(value);
+    }
+
+    @HostAccess.Export
+    public Object[] version(String ver) {
+        int[] vers =  AXDAScriptEngine.getPlugin().getVersion(ver);
+        return Arrays.stream(vers).boxed().toArray(Object[]::new);
     }
 
 }

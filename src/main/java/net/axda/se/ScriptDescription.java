@@ -22,7 +22,7 @@ public class ScriptDescription {
     }
 
     public void setName(String name) {
-        if (this.name == null) {
+        if (this.name != null) {
             this.name = name;
         }
     }

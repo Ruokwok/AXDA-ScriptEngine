@@ -39,10 +39,13 @@ public class AXDAScriptEngine extends PluginBase {
         ScriptLoader.getInstance().disablePlugins();
     }
 
-    public int[] getVersion() {
-        if (version != null) return version;
+    public int[] getVersion(String versionStr) {
+        if (versionStr == null) {
+            versionStr = getDescription().getVersion();
+            if (version != null) return version;
+        }
         try {
-            String[] version = getDescription().getVersion().split("\\.");
+            String[] version = versionStr.split("\\.");
             int[] v = new int[3];
             for (int i = 0; i < version.length; i++) {
                 v[i] = Integer.parseInt(version[i]);

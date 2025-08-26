@@ -7,6 +7,7 @@ import net.axda.se.ScriptLoader;
 import net.axda.se.api.API;
 import net.axda.se.api.gui.CustomForm;
 import net.axda.se.api.gui.SimpleForm;
+import net.axda.se.exception.UnsupportedMemberException;
 import net.axda.se.exception.ValueTypeException;
 import net.axda.se.listen.Listen;
 import net.axda.se.listen.ListenEvent;
@@ -173,6 +174,37 @@ public class MC extends API {
         FakeCommand command = new FakeCommand(cmd, description, callback);
         command.setConsole(true);
         return server.getCommandMap().register(cmd, command);
+    }
+
+    @HostAccess.Export
+    public Object newCommand(String cmd, String desc, int prem, int flag, String... alias) {
+        throw new UnsupportedMemberException("newCommand");
+    }
+
+    @HostAccess.Export
+    public Object newCommand(String cmd, String desc, int prem) {
+        return newCommand(cmd, desc, prem, 0);
+    }
+
+    @HostAccess.Export
+    public Object newCommand(String cmd, String desc) {
+        return newCommand(cmd, desc, 1);
+    }
+
+    @HostAccess.Export
+    public boolean explode(Value... args) {
+        throw new UnsupportedMemberException("explode");
+    }
+
+    @HostAccess.Export
+    public Object getAllEntities() {
+        ScriptLoader.getInstance().logException(new UnsupportedMemberException("getAllEntities"));
+        return null;
+    }
+
+    @HostAccess.Export
+    public Object getEntities() {
+        throw new UnsupportedMemberException("getEntities");
     }
 
 }

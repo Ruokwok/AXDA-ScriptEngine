@@ -4,6 +4,7 @@ import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.block.Block;
 import cn.nukkit.command.ConsoleCommandSender;
+import cn.nukkit.item.Item;
 import cn.nukkit.level.Level;
 import net.axda.se.ScriptLoader;
 import net.axda.se.api.API;
@@ -238,6 +239,13 @@ public class MC extends API {
         Block block = level.getBlock(x, y, z);
         if (block == null || !block.getChunk().isLoaded()) return null;
         return new ScriptBlock(block);
+    }
+
+    @HostAccess.Export
+    public ScriptItem newItem(String name, int count) {
+        Item item = Item.fromString(name);
+        item.setCount(count);
+        return new ScriptItem(item);
     }
 
 }

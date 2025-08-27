@@ -181,13 +181,13 @@ public class MC extends API {
     }
 
     @HostAccess.Export
-    public Object newCommand(String cmd, String desc, int prem, int flag, String... alias) {
-        throw new UnsupportedMemberException("newCommand");
+    public ScriptCommand newCommand(String cmd, String desc, int prem, int flag, String... alias) {
+        return new ScriptCommand(cmd, desc, prem, flag, alias);
     }
 
     @HostAccess.Export
     public Object newCommand(String cmd, String desc, int prem) {
-        return newCommand(cmd, desc, prem, 0);
+        return newCommand(cmd, desc, prem, 0x80);
     }
 
     @HostAccess.Export

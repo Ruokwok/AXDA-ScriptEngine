@@ -2,9 +2,12 @@ package net.axda.se.api.game;
 
 import cn.nukkit.Player;
 import cn.nukkit.Server;
+import cn.nukkit.block.Block;
 import cn.nukkit.command.ConsoleCommandSender;
+import cn.nukkit.level.Level;
 import net.axda.se.ScriptLoader;
 import net.axda.se.api.API;
+import net.axda.se.api.game.data.Pos;
 import net.axda.se.api.gui.CustomForm;
 import net.axda.se.api.gui.SimpleForm;
 import net.axda.se.exception.UnsupportedMemberException;
@@ -205,6 +208,36 @@ public class MC extends API {
     @HostAccess.Export
     public Object getEntities() {
         throw new UnsupportedMemberException("getEntities");
+    }
+
+    @HostAccess.Export
+    public ScriptBlock getBlock(Pos pos) {
+        Level level = server.getLevelByName(pos.getLevel());
+        if (level == null) return null;
+        Block block = level.getBlock((int) pos.getX(), (int) pos.getY(), (int) pos.getZ());
+        if (block == null || !block.getChunk().isLoaded()) return null;
+        return new ScriptBlock(block);
+    }
+
+    @HostAccess.Export
+    public ScriptBlock getBlock(int x, int y, int z, Value value) {
+        String name = null;
+        if (value.isString()) {
+            name = value.asString();
+        } else if (value.isNumber()) {
+            int id = value.asInt();
+            name = switch (id) {
+                case 0 -> server.getDefaultLevel().getName();
+                case 1 -> "nether";
+                case 2 -> "the_end";
+                default -> "world";
+            };
+        }
+        Level level = server.getLevelByName(name);
+        if (level == null) return null;
+        Block block = level.getBlock(x, y, z);
+        if (block == null || !block.getChunk().isLoaded()) return null;
+        return new ScriptBlock(block);
     }
 
 }

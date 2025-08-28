@@ -176,11 +176,7 @@ public class ScriptLoader {
 //        } else if (ListenMap.execEngine != null) {
 //            ListenMap.nowEngine.putCloseable(c);
 //        }
-        if (this.nowEngine != null) {
-            this.nowEngine.putCloseable(c);
-        } else if (ListenMap.nowEngine != null) {
-            ListenMap.nowEngine.putCloseable(c);
-        }
+        getEngineNow().putCloseable(c);
     }
 
     public ScriptEngine getEngine(String name) {
@@ -190,6 +186,14 @@ public class ScriptLoader {
             }
         }
         return null;
+    }
+
+    public ScriptEngine getEngineNow() {
+        if (nowEngine == null) {
+            return ListenMap.nowEngine;
+        } else {
+            return nowEngine;
+        }
     }
 
     public void unzipAll() {

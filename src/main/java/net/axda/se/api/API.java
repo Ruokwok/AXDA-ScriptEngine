@@ -4,6 +4,7 @@ import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.command.Command;
 import cn.nukkit.command.SimpleCommandMap;
+import cn.nukkit.level.Level;
 import com.google.gson.Gson;
 import net.axda.se.ScriptEngine;
 import net.axda.se.api.game.data.Pos;
@@ -97,6 +98,20 @@ public class API {
         for (Player player : players) {
             player.sendCommandData();
         }
+    }
+
+    public static Level getLevel(Value value) {
+        if (value.isString()) {
+            return Server.getInstance().getLevelByName(value.asString());
+        } else if (value.isNumber()) {
+            int id = value.asInt();
+            switch (id) {
+                case 0: return Server.getInstance().getDefaultLevel();
+                case 1: return Server.getInstance().getLevelByName("nether");
+                case 2: return Server.getInstance().getLevelByName("the_end");
+            }
+        }
+        return null;
     }
 
 }

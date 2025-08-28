@@ -48,32 +48,86 @@ public class MC extends API {
 
     @HostAccess.Export
     public boolean setMotd(String motd) {
-        return false;
+        server.setPropertyString("motd", motd);
+        return true;
     }
 
     @HostAccess.Export
     public boolean setMaxPlayers(int size) {
-        return false;
+        server.setMaxPlayers(size);
+        return true;
+    }
+
+    @HostAccess.Export
+    public int getTime(Value value) {
+        Level level = API.getLevel(value);
+        if (level != null) {
+            return level.getTime();
+        }
+        return 0;
     }
 
     @HostAccess.Export
     public int getTime() {
-        return 0;
+        return getTime(Value.asValue(0));
+    }
+
+    @HostAccess.Export
+    public boolean setTime(int time, Value value) {
+        Level level = API.getLevel(value);
+        if (level == null) return false;
+        level.setTime(time);
+        return false;
     }
 
     @HostAccess.Export
     public boolean setTime(int time) {
-        return false;
+        return setTime(time, Value.asValue(0));
     }
 
     @HostAccess.Export
-    public int getWeather(int weather) {
+    public int getWeather(Value value) {
+        Level level = API.getLevel(value);
+        if (level == null) return 0;
+        if (level.isRaining()) return 1;
+        if (level.isThundering()) return 2;
         return 0;
     }
 
     @HostAccess.Export
+    public int getWeather() {
+        return getWeather(Value.asValue(0));
+    }
+
+    @HostAccess.Export
+    public boolean setWeather(int weather, Value value) {
+        Level level = API.getLevel(value);
+        if (level == null) {
+            return false;
+        } else {
+            switch (weather) {
+                case 0:
+                    level.setRaining(false);
+                    level.setThundering(false);
+                    break;
+                case 1:
+                    level.setRaining(true);
+                    level.setThundering(false);
+                    break;
+                case 2:
+                    level.setRaining(true);
+                    level.setThundering(true);
+                    break;
+                default:
+                    return false;
+            }
+            return true;
+        }
+    }
+
+    @HostAccess.Export
     public boolean setWeather(int weather) {
-        return false;
+        return setWeather(weather, Value.asValue(0));
     }
 
     @HostAccess.Export

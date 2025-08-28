@@ -6,6 +6,7 @@ import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.command.SimpleCommandMap;
 import net.axda.se.ScriptLoader;
+import net.axda.se.api.API;
 import org.graalvm.polyglot.Value;
 import org.graalvm.polyglot.proxy.ProxyArray;
 
@@ -47,21 +48,7 @@ public class FakeCommand extends Command implements AutoCloseable {
 
     @Override
     public void close() {
-        SimpleCommandMap commandMap = Server.getInstance().getCommandMap();
-        try {
-            Field knownCommandsField = SimpleCommandMap.class.getDeclaredField("knownCommands");
-            knownCommandsField.setAccessible(true);
-            @SuppressWarnings("unchecked")
-            Map<String, Command> knownCommands = (Map<String, Command>) knownCommandsField.get(commandMap);
-            knownCommands.remove(getName());
-            knownCommands.remove(getName() + ":" + getName());
-        } catch (Exception e) {
-        }
-        unregister(commandMap);
-        Collection<Player> players = Server.getInstance().getOnlinePlayers().values();
-        for (Player player : players) {
-            player.sendCommandData();
-        }
+        API.unregisterCommand(this);
     }
 
     public boolean executeCallback(Player player, String[] args) {

@@ -1,10 +1,18 @@
 package net.axda.se.api;
 
+import cn.nukkit.Player;
 import cn.nukkit.Server;
+import cn.nukkit.command.Command;
+import cn.nukkit.command.SimpleCommandMap;
 import com.google.gson.Gson;
 import net.axda.se.ScriptEngine;
 import net.axda.se.api.game.data.Pos;
 import org.graalvm.polyglot.Value;
+
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map;
 
 public class API {
 
@@ -64,6 +72,31 @@ public class API {
 
     public static int msToTick(int ms) {
         return (int) ((ms / 1000) * Server.getInstance().getTicksPerSecond());
+    }
+
+    public static void unregisterCommand(Command command) {
+        SimpleCommandMap commandMap = Server.getInstance().getCommandMap();
+        try {
+            Field knownCommandsField = SimpleCommandMap.class.getDeclaredField("knownCommands");
+            knownCommandsField.setAccessible(true);
+            @SuppressWarnings("unchecked")
+            Map<String, Command> knownCommands = (Map<String, Command>) knownCommandsField.get(commandMap);
+            ArrayList<String> list = new ArrayList<>();
+            for (Map.Entry<String, Command> entry : knownCommands.entrySet()) {
+                if (entry.getValue() == command) {
+                    list.add(entry.getKey());
+                }
+            }
+            for (String key : list) {
+                knownCommands.remove(key);
+            }
+        } catch (Exception e) {
+        }
+        command.unregister(commandMap);
+        Collection<Player> players = Server.getInstance().getOnlinePlayers().values();
+        for (Player player : players) {
+            player.sendCommandData();
+        }
     }
 
 }

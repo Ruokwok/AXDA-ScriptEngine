@@ -181,8 +181,8 @@ public class MC extends API {
     }
 
     @HostAccess.Export
-    public ScriptCommand newCommand(String cmd, String desc, int prem, int flag, String... alias) {
-        return new ScriptCommand(cmd, desc, prem, flag, alias);
+    public RealCommand newCommand(String cmd, String desc, int prem, int flag, String... alias) {
+        return new RealCommand(cmd, desc, prem, flag, alias);
     }
 
     @HostAccess.Export

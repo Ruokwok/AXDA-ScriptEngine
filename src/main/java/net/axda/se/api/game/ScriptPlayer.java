@@ -1,9 +1,14 @@
 package net.axda.se.api.game;
 
+import cn.nukkit.AdventureSettings;
 import cn.nukkit.Player;
+import cn.nukkit.PlayerFood;
 import cn.nukkit.Server;
 import cn.nukkit.block.Block;
 import cn.nukkit.command.CommandSender;
+import cn.nukkit.entity.Entity;
+import cn.nukkit.event.entity.EntityDamageByEntityEvent;
+import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.event.player.PlayerChatEvent;
 import cn.nukkit.form.element.ElementButton;
 import cn.nukkit.form.element.ElementButtonImageData;
@@ -14,12 +19,15 @@ import cn.nukkit.form.window.FormWindow;
 import cn.nukkit.form.window.FormWindowCustom;
 import cn.nukkit.form.window.FormWindowModal;
 import cn.nukkit.form.window.FormWindowSimple;
+import cn.nukkit.item.Item;
+import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
 import cn.nukkit.level.biome.Biome;
 import cn.nukkit.math.Vector3;
 import me.onebone.economyapi.EconomyAPI;
 import net.axda.se.api.ProxyAPI;
 import net.axda.se.api.ProxyField;
+import net.axda.se.api.game.data.DirectionAngle;
 import net.axda.se.api.game.data.FloatPos;
 import net.axda.se.api.game.data.IntPos;
 import net.axda.se.api.game.data.Pos;
@@ -94,7 +102,7 @@ public class ScriptPlayer extends API implements ProxyAPI, Pos {
 
     @ProxyField
     public String name() {
-        return player.getName();
+        return player.getDisplayName();
     }
 
     @ProxyField
@@ -119,12 +127,12 @@ public class ScriptPlayer extends API implements ProxyAPI, Pos {
 
     @ProxyField
     public String uuid() {
-        return player.getUniqueId().toString();
+        return player.getLoginChainData().getClientUUID().toString();
     }
 
     @ProxyField
     public int premLevel() {
-        throw new UnsupportedMemberException("premLevel");
+        return player.isOp() ? 1 : 0;
     }
 
     @ProxyField
@@ -134,37 +142,48 @@ public class ScriptPlayer extends API implements ProxyAPI, Pos {
 
     @ProxyField
     public boolean canFly() {
-        return player.getAllowFlight();
+        return player.getAdventureSettings().get(AdventureSettings.Type.ALLOW_FLIGHT);
     }
 
     @ProxyField
     public boolean canSleep() {
-        throw new UnsupportedMemberException("canSleep");
+        int time = player.getLevel().getTime() % Level.TIME_FULL;
+        return time >= Level.TIME_NIGHT && time < Level.TIME_SUNRISE;
     }
 
     @ProxyField
     public boolean canBeSeenOnMap() {
-        throw new UnsupportedMemberException("canBeSeenOnMap");
+        API.printException(new UnsupportedMemberException("canBeSeenOnMap"));
+        return true;
     }
 
     @ProxyField
     public boolean canFreeze() {
-        throw new UnsupportedMemberException("canFreeze");
+        API.printException(new UnsupportedMemberException("canFreeze"));
+        return true;
     }
 
     @ProxyField
     public boolean canSeeDaylight() {
-        throw new UnsupportedMemberException("canSeeDaylight");
+        Level level = player.getLevel();
+        if (level.getDimension() != Level.DIMENSION_OVERWORLD) return false;
+        int time = level.getTime() % Level.TIME_FULL;
+        boolean isDayTime = time >= Level.TIME_DAY && time < Level.TIME_NIGHT;
+        if (!isDayTime) return false;
+        if (level.isRaining() || level.isThundering()) return false;
+        Vector3 eyePosition = new Vector3(player.getX(), player.getEyeHeight(), player.getZ());
+        return level.canBlockSeeSky(eyePosition);
     }
 
     @ProxyField
     public boolean canShowNameTag() {
-        throw new UnsupportedMemberException("canShowNameTag");
+        return player.isNameTagVisible();
     }
 
     @ProxyField
     public boolean canStartSleepInBed() {
-        throw new UnsupportedMemberException("canStartSleepInBed");
+        int time = player.getLevel().getTime() % Level.TIME_FULL;
+        return time >= Level.TIME_NIGHT && time < Level.TIME_SUNRISE;
     }
 
     @ProxyField
@@ -184,17 +203,18 @@ public class ScriptPlayer extends API implements ProxyAPI, Pos {
 
     @ProxyField
     public boolean inAir() {
-        return !player.isOnGround();
+        return player.getInAirTicks() > 0;
     }
 
     @ProxyField
     public boolean inWater() {
-        return player.isInsideOfWater();
+        return player.isSwimming();
     }
 
     @ProxyField
     public boolean inLava() {
-        throw new UnsupportedMemberException("inLava");
+        API.printException(new UnsupportedMemberException("inLava"));
+        return false;
     }
 
     @ProxyField
@@ -205,12 +225,14 @@ public class ScriptPlayer extends API implements ProxyAPI, Pos {
 
     @ProxyField
     public boolean inSnow() {
-        throw new UnsupportedMemberException("inSnow");
+        API.printException(new UnsupportedMemberException("inSnow"));
+        return false;
     }
 
     @ProxyField
     public boolean inWall() {
-        throw new UnsupportedMemberException("inWall");
+        API.printException(new UnsupportedMemberException("inWall"));
+        return false;
     }
 
     @ProxyField
@@ -234,8 +256,8 @@ public class ScriptPlayer extends API implements ProxyAPI, Pos {
     }
 
     @ProxyField
-    public void direction() {
-        throw new UnsupportedMemberException("direction");
+    public DirectionAngle direction() {
+        return new DirectionAngle(player);
     }
 
     @ProxyField
@@ -255,17 +277,18 @@ public class ScriptPlayer extends API implements ProxyAPI, Pos {
 
     @ProxyField
     public boolean isLoading() {
-        throw new UnsupportedMemberException("isLoading");
+        return player.isLoaderActive();
     }
 
     @ProxyField
     public boolean isInvisible() {
-        throw new UnsupportedMemberException("isInvisible");
+        return player.getDataPropertyBoolean(Entity.DATA_FLAG_INVISIBLE);
     }
 
     @ProxyField
     public boolean isInsidePortal() {
-        throw new UnsupportedMemberException("isInsidePortal");
+        API.printException(new UnsupportedMemberException("isInsidePortal"));
+        return false;
     }
 
     @ProxyField
@@ -296,7 +319,7 @@ public class ScriptPlayer extends API implements ProxyAPI, Pos {
 
     @ProxyField
     public boolean isHungry() {
-        return player.getFoodData().getLevel() < 20;
+        return player.getFoodData().getLevel() < player.getFoodData().getMaxLevel();
     }
 
     @ProxyField
@@ -311,12 +334,13 @@ public class ScriptPlayer extends API implements ProxyAPI, Pos {
 
     @ProxyField
     public boolean isOnHotBlock() {
-        throw new UnsupportedMemberException("isOnHotBlock");
+        API.printException(new UnsupportedMemberException("isOnHotBlock"));
+        return false;
     }
 
     @ProxyField
     public boolean isTrading() {
-        throw new UnsupportedMemberException("isTrading");
+        return false;
     }
 
     @ProxyField
@@ -346,7 +370,8 @@ public class ScriptPlayer extends API implements ProxyAPI, Pos {
 
     @ProxyField
     public boolean isDancing() {
-        throw new UnsupportedMemberException("isDancing");
+        API.printException(new UnsupportedMemberException("isDancing"));
+        return false;
     }
 
     @ProxyField
@@ -356,7 +381,7 @@ public class ScriptPlayer extends API implements ProxyAPI, Pos {
 
     @ProxyField
     public boolean isFlying() {
-        throw new UnsupportedMemberException("isFlying");
+        return player.getAdventureSettings().get(AdventureSettings.Type.FLYING);
     }
 
     @ProxyField
@@ -395,18 +420,23 @@ public class ScriptPlayer extends API implements ProxyAPI, Pos {
     @HostAccess.Export
     public boolean tell(Value... args) throws ValueTypeException {
         if (args.length < 1) return false;
-        try {
-            String msg = toString(args[0]);
-            int type = (args.length < 2)? 0: args[1].asInt();
-            switch (type) {
-                case 0: player.sendMessage(msg); return true;
-                case 1: player.sendChat(msg); return true;
-                case 4: player.sendPopup(msg); return true;
-                case 5: player.sendTip(msg); return true;
-                default: return false;
-            }
-        } catch (Exception e) {
-            throw new ValueTypeException(e);
+        String msg = toString(args[0]);
+        int type = (args.length < 2)? 0: args[1].asInt();
+        switch (type) {
+            case 0:
+                player.sendMessage(msg);
+                return true;
+            case 1:
+                player.sendChat(msg);
+                return true;
+            case 4:
+                player.sendPopup(msg);
+                return true;
+            case 5:
+                player.sendTip(msg);
+                return true;
+            default:
+                return false;
         }
     }
 
@@ -418,64 +448,44 @@ public class ScriptPlayer extends API implements ProxyAPI, Pos {
     @HostAccess.Export
     public boolean setTitle(Value... args) {
         if (args.length == 0) return false;
-        try {
-            String content = toString(args[0]);
-            int type = (args.length <= 2)? 2: args[1].asInt();
-            int fadeInTime = (args.length <= 3)? 10: args[2].asInt();
-            int stayTime = (args.length <= 4)? 70: args[3].asInt();
-            int fadeOutTime = (args.length <= 5)? 20: args[4].asInt();
-            switch (type) {
-                case 0: player.clearTitle(); return true;
-                case 1: return false;
-                case 2: player.sendTitle(content, "", fadeInTime, stayTime, fadeOutTime); return true;
-                case 3: player.sendTitle("", content, fadeInTime, stayTime, fadeOutTime); return true;
-                case 4: player.sendActionBar(content, fadeInTime, stayTime, fadeOutTime); return true;
-                default: return false;
-            }
-        } catch (Exception e) {
-            throw new ValueTypeException();
+        String content = toString(args[0]);
+        int type = (args.length <= 2)? 2: args[1].asInt();
+        int fadeInTime = (args.length <= 3)? 10: args[2].asInt();
+        int stayTime = (args.length <= 4)? 70: args[3].asInt();
+        int fadeOutTime = (args.length <= 5)? 20: args[4].asInt();
+        switch (type) {
+            case 0: player.clearTitle(); return true;
+            case 1: player.resetTitleSettings(); return true;
+            case 2: player.sendTitle(content, "", fadeInTime, stayTime, fadeOutTime); return true;
+            case 3: player.sendTitle("", content, fadeInTime, stayTime, fadeOutTime); return true;
+            case 4: player.sendActionBar(content, fadeInTime, stayTime, fadeOutTime); return true;
+            default: return false;
         }
     }
 
     @HostAccess.Export
     public boolean sendToast(Value... args) {
-        try {
-            player.sendToast(API.toString(args[0]), API.toString(args[1]));
-        } catch (Exception e) {
-            throw new ValueTypeException();
-        }
-        return false;
+        player.sendToast(API.toString(args[0]), API.toString(args[1]));
+        return true;
     }
 
     @HostAccess.Export
     public boolean runcmd(Value... args) {
-        try {
-            return player.getServer().dispatchCommand(player, args[0].asString());
-        } catch (Exception e) {
-            throw new ValueTypeException();
-        }
+        return player.getServer().dispatchCommand(player, args[0].asString());
     }
 
     @HostAccess.Export
     public boolean talkAs(Value... args) {
-        try {
-            return player.chat(args[0].asString());
-        } catch (Exception e) {
-            throw new ValueTypeException();
-        }
+        return player.chat(args[0].asString());
     }
 
     @HostAccess.Export
     public double distanceTo(Value... args) {
-        try {
-            Pos pos = API.toPos(args[0]);
-            if (!player.getLevel().getName().equals(pos.getLevel())) {
-                return Integer.MAX_VALUE;
-            } else {
-                return (float) player.distance(new Vector3(pos.getX(), pos.getY(), pos.getZ()));
-            }
-        } catch (Exception e) {
-            throw new ValueTypeException(e);
+        Pos pos = API.toPos(args[0]);
+        if (!player.getLevel().getName().equals(pos.getLevel())) {
+            return Integer.MAX_VALUE;
+        } else {
+            return (float) player.distance(new Vector3(pos.getX(), pos.getY(), pos.getZ()));
         }
     }
 
@@ -486,50 +496,45 @@ public class ScriptPlayer extends API implements ProxyAPI, Pos {
 
     @HostAccess.Export
     public boolean talkTo(Value... args) {
-        try {
-            String message = args[0].asString();
-            Player target = args[1].getMember("..nukkit_player..").as(Player.class);
-            if (target != null && target.isOnline()) {
-                player.resetCraftingGridType();
+        String message = args[0].asString();
+        Player target = (Player) args[1].as(ProxyAPI.class).getOrigin();
+        if (target != null && target.isOnline()) {
+            player.resetCraftingGridType();
 
-                for(String msg : message.split("\n")) {
-                    if (!msg.trim().isEmpty() && msg.length() < 512) {
-                        PlayerChatEvent chatEvent = new PlayerChatEvent(player, msg);
-                        server.getPluginManager().callEvent(chatEvent);
-                        if (!chatEvent.isCancelled()) {
-                            HashSet<CommandSender> set = new HashSet<>();
-                            set.add(target);
-                            server.broadcastMessage(
-                                    server.getLanguage().translateString(chatEvent.getFormat(),
-                                            new String[]{chatEvent.getPlayer().getDisplayName(), chatEvent.getMessage()}),
-                                    set);
-                            return true;
-                        }
+            for(String msg : message.split("\n")) {
+                if (!msg.trim().isEmpty() && msg.length() < 512) {
+                    PlayerChatEvent chatEvent = new PlayerChatEvent(player, msg);
+                    server.getPluginManager().callEvent(chatEvent);
+                    if (!chatEvent.isCancelled()) {
+                        HashSet<CommandSender> set = new HashSet<>();
+                        set.add(target);
+                        server.broadcastMessage(
+                                server.getLanguage().translateString(chatEvent.getFormat(),
+                                        new String[]{chatEvent.getPlayer().getDisplayName(), chatEvent.getMessage()}),
+                                set);
+                        return true;
                     }
                 }
             }
-            return false;
-        } catch (Exception e) {
-            throw new ValueTypeException(e);
         }
+        return false;
     }
 
     @HostAccess.Export
     public boolean teleport(Value... args) {
-        try {
-            Pos pos;
-            if (args[0].isNumber()) {
-                float x = args[0].asFloat();
-                float y = args[1].asFloat();
-                float z = args[2].asFloat();
-                int dim = args[3].asInt();
-                pos = new FloatPos(x, y, z, dim);
-                player.teleport(pos.getLocation());
-            } else {
-
+        Pos pos;
+        if (args[0].isNumber()) {
+            float x = args[0].asFloat();
+            float y = args[1].asFloat();
+            float z = args[2].asFloat();
+            pos = new FloatPos(x, y, z, args[3]);
+            player.teleport(pos.getLocation());
+            if (args.length == 5) {
+                //TODO 设置玩家朝向
             }
-        } catch (Exception e) {
-            throw new ValueTypeException(e);
+        } else {
+            pos = args[0].as(Pos.class);
+            player.teleport(pos.getLocation());
         }
         return false;
     }
@@ -547,7 +552,9 @@ public class ScriptPlayer extends API implements ProxyAPI, Pos {
 
     @HostAccess.Export
     public boolean hurt(Value... args) {
-        throw new UnsupportedMemberException("hurt");
+        float damage = args[0].asFloat();
+        int type = args[1].asInt();
+        return player.attack(new EntityDamageByEntityEvent(player, player, EntityDamageEvent.DamageCause.ENTITY_ATTACK, damage));
     }
 
     @HostAccess.Export
@@ -570,27 +577,32 @@ public class ScriptPlayer extends API implements ProxyAPI, Pos {
 
     @HostAccess.Export
     public boolean setAttackDamage(Value... args) {
-        throw new UnsupportedMemberException("setAttackDamage");
+        API.printException(new UnsupportedMemberException("setAttackDamage"));
+        return false;
     }
 
     @HostAccess.Export
     public boolean setMaxAttackDamage(Value... args) {
-        throw new UnsupportedMemberException("setMaxAttackDamage");
+        API.printException(new UnsupportedMemberException("setMaxAttackDamage"));
+        return false;
     }
 
     @HostAccess.Export
     public boolean setFollowRange(Value... args) {
-        throw new UnsupportedMemberException("setFollowRange");
+        API.printException(new UnsupportedMemberException("setFollowRange"));
+        return false;
     }
 
     @HostAccess.Export
     public boolean setKnockbackResistance(Value... args) {
-        throw new UnsupportedMemberException("setKnockbackResistance");
+        API.printException(new UnsupportedMemberException("setKnockbackResistance"));
+        return false;
     }
 
     @ProxyField
     public boolean setLuck(Value... args) {
-        throw new UnsupportedMemberException("setLuck");
+        API.printException(new UnsupportedMemberException("setLuck"));
+        return false;
     }
 
     @HostAccess.Export
@@ -601,12 +613,14 @@ public class ScriptPlayer extends API implements ProxyAPI, Pos {
 
     @HostAccess.Export
     public boolean setUnderwaterMovementSpeed(Value... args) {
-        throw new UnsupportedMemberException("setUnderwaterMovementSpeed");
+        API.printException(new UnsupportedMemberException("setUnderwaterMovementSpeed"));
+        return false;
     }
 
     @HostAccess.Export
     public boolean setLavaMovementSpeed(Value... args) {
-        throw new UnsupportedMemberException("setLavaMovementSpeed");
+        API.printException(new UnsupportedMemberException("setLavaMovementSpeed"));
+        return false;
     }
 
     @HostAccess.Export
@@ -617,7 +631,13 @@ public class ScriptPlayer extends API implements ProxyAPI, Pos {
 
     @HostAccess.Export
     public boolean setHungry(Value... args) {
-        throw new UnsupportedMemberException("setHungry");
+        PlayerFood data = player.getFoodData();
+        if (data != null) {
+            data.setLevel(args[1].asInt());
+            return true;
+        } else {
+            return false;
+        }
     }
 
     @HostAccess.Export
@@ -628,6 +648,7 @@ public class ScriptPlayer extends API implements ProxyAPI, Pos {
 
     @HostAccess.Export
     public boolean stopFire(Value... args) {
+        player.setOnFire(0);
         player.extinguish();
         return true;
     }
@@ -640,13 +661,13 @@ public class ScriptPlayer extends API implements ProxyAPI, Pos {
 
     @HostAccess.Export
     public boolean rename(Value... args) {
-        player.setNameTag(args[0].asString());
+        player.setDisplayName(args[0].asString());
         return true;
     }
 
     @HostAccess.Export
     public ScriptBlock getBlockStandingOn(Value... args) {
-        return new ScriptBlock(player.getLevelBlock());
+        return new ScriptBlock(player.getPosition().add(0, -0.1).getLevelBlock());
     }
 
     @HostAccess.Export
@@ -666,17 +687,19 @@ public class ScriptPlayer extends API implements ProxyAPI, Pos {
 
     @HostAccess.Export
     public Object getInventory(Value... args) {
-        throw new UnsupportedMemberException("getInventory");
+        return new Container(player.getInventory());
     }
 
     @HostAccess.Export
     public Object getArmor(Value... args) {
-        throw new UnsupportedMemberException("getArmor");
+        Item[] contents = player.getInventory().getArmorContents();
+        return new Container(contents, "Armor");
     }
 
     @HostAccess.Export
     public Object getEnderChest(Value... args) {
-        throw new UnsupportedMemberException("getEnderChest");
+        API.printException(new UnsupportedMemberException("getEnderChest"));
+        return null;
     }
 
     @HostAccess.Export
@@ -693,8 +716,7 @@ public class ScriptPlayer extends API implements ProxyAPI, Pos {
             float x = args[0].asFloat();
             float y = args[1].asFloat();
             float z = args[2].asFloat();
-            int dim = args[3].asInt();
-            player.setSpawn(new FloatPos(x, y, z, dim).getLocation());
+            player.setSpawn(new FloatPos(x, y, z, args[3]).getLocation());
         }
         return true;
     }

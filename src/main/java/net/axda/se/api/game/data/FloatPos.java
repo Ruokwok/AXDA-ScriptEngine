@@ -6,6 +6,7 @@ import cn.nukkit.level.Location;
 import cn.nukkit.math.Vector3;
 import net.axda.se.api.API;
 import org.graalvm.polyglot.HostAccess;
+import org.graalvm.polyglot.Value;
 
 public class FloatPos implements Pos {
 
@@ -28,12 +29,13 @@ public class FloatPos implements Pos {
     public String level;
 
     @HostAccess.Export
-    public FloatPos(double x, double y, double z, int dimid, String level) {
+    public FloatPos(double x, double y, double z, Value value) {
+        Level l = API.getLevel(value);
         this.x = x;
         this.y = y;
         this.z = z;
-        this.dimid = dimid;
-        this.level = level;
+        this.dimid = l.getDimension();
+        this.level = l.getName();
         switch (dimid) {
             case 0: dim = "主世界"; break;
             case 1: dim = "下界"; break;
@@ -42,12 +44,7 @@ public class FloatPos implements Pos {
     }
 
     public FloatPos(Vector3 vector3, Level level) {
-        this(vector3.getX(), vector3.getY(), vector3.getZ(), level.getDimension(), level.getName());
-    }
-
-    @HostAccess.Export
-    public FloatPos(double x, double y, double z, int dimid) {
-        this(x, y, z, dimid, Server.getInstance().getDefaultLevel().getName());
+        this(vector3.getX(), vector3.getY(), vector3.getZ(),Value.asValue(level));
     }
 
     @Override

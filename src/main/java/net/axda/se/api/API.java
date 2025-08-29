@@ -103,6 +103,10 @@ public class API {
     }
 
     public static Level getLevel(Value value) {
+        try {
+            return value.as(Level.class);
+        } catch (Exception e) {
+        }
         if (value.isString()) {
             return Server.getInstance().getLevelByName(value.asString());
         } else if (value.isNumber()) {

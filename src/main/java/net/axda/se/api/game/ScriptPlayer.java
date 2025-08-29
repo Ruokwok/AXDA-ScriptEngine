@@ -24,6 +24,8 @@ import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
 import cn.nukkit.level.biome.Biome;
 import cn.nukkit.math.Vector3;
+import cn.nukkit.utils.BossBarColor;
+import cn.nukkit.utils.DummyBossBar;
 import me.onebone.economyapi.EconomyAPI;
 import net.axda.se.api.ProxyAPI;
 import net.axda.se.api.ProxyField;
@@ -50,6 +52,7 @@ public class ScriptPlayer extends API implements ProxyAPI, Pos {
     private Server server = Server.getInstance();
     private Hashtable<Integer, Form> formCallback = new Hashtable<>();
     private int formId = -114514;
+    private HashMap<Integer, Long> bossBarMap;
 
     public ScriptPlayer(Player player) {
         this.player = player;
@@ -834,7 +837,8 @@ public class ScriptPlayer extends API implements ProxyAPI, Pos {
 
     @HostAccess.Export
     public boolean crash(Value... args) {
-        throw new RuntimeException("crash");
+        API.printException(new UnsupportedMemberException("crash"));
+        return false;
     }
 
     @HostAccess.Export
@@ -849,12 +853,26 @@ public class ScriptPlayer extends API implements ProxyAPI, Pos {
 
     @HostAccess.Export
     public boolean setBossBar(Value... args) {
-        throw new UnsupportedMemberException("setBossBar");
+        int uid = args[0].asInt();
+        String title = args[1].asString();
+        int percent = args[2].asInt();
+        int color = 2;
+        if (args.length == 4) color = args[3].asInt();
+        DummyBossBar.Builder builder = new DummyBossBar.Builder(player);
+        DummyBossBar bar = builder.text(title).length(percent).color(BossBarColor.values()[color]).build();
+        long id = player.createBossBar(bar);
+        if (bossBarMap == null) bossBarMap = new HashMap<>();
+        bossBarMap.put(uid, id);
+        return true;
     }
 
     @HostAccess.Export
     public boolean removeBossBar(Value... args) {
-        throw new UnsupportedMemberException("removeBossBar");
+        if (bossBarMap == null) {
+            return false;
+        }
+        player.removeBossBar(bossBarMap.get(args[0].asInt()));
+        return true;
     }
 
     @HostAccess.Export

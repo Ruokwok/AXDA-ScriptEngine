@@ -92,7 +92,7 @@ public class ScriptEntity extends API implements ProxyAPI, Pos {
 
     @ProxyField
     public FloatPos feetPos() {
-        return new FloatPos(entity.getX(), entity.getY(), entity.getZ(), entity.getLevel().getDimension());
+        return new FloatPos(entity.getX(), entity.getY(), entity.getZ(), Value.asValue(entity.getLevel()));
     }
 
     @ProxyField

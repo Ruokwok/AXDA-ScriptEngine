@@ -6,7 +6,9 @@ import cn.nukkit.command.Command;
 import cn.nukkit.command.SimpleCommandMap;
 import cn.nukkit.level.Level;
 import com.google.gson.Gson;
+import net.axda.se.AXDAScriptEngine;
 import net.axda.se.ScriptEngine;
+import net.axda.se.ScriptLoader;
 import net.axda.se.api.game.data.Pos;
 import org.graalvm.polyglot.Value;
 
@@ -112,6 +114,11 @@ public class API {
             }
         }
         return null;
+    }
+
+    public static void printException(Throwable e) {
+        ScriptEngine _engine = ScriptLoader.getInstance().getEngineNow();
+        _engine.logExceptionTitle(e.getMessage());
     }
 
 }

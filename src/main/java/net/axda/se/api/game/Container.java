@@ -1,11 +1,14 @@
 package net.axda.se.api.game;
 
+import cn.nukkit.inventory.ContainerInventory;
 import cn.nukkit.inventory.Inventory;
 import cn.nukkit.item.Item;
 import org.graalvm.polyglot.HostAccess;
 import org.graalvm.polyglot.proxy.ProxyArray;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 public class Container {
@@ -16,7 +19,15 @@ public class Container {
         this.type = inventory.getType().name();
     }
 
+    public Container(Item[] items, String type) {
+        this.inventory = null;
+        this.size = items.length;
+        this.type = type;
+        this.items = Arrays.asList(items);
+    }
+
     private final Inventory inventory;
+    private List<Item> items;
 
     @HostAccess.Export
     public final int size;

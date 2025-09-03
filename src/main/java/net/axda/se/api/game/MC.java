@@ -291,7 +291,7 @@ public class MC extends API {
         Level level = server.getLevelByName(name);
         if (level == null) return null;
         Block block = level.getBlock(x, y, z);
-        if (block == null || !block.getChunk().isLoaded()) return null;
+        if (block == null || block.getChunk() == null || !block.getChunk().isLoaded()) return null;
         return new ScriptBlock(block);
     }
 

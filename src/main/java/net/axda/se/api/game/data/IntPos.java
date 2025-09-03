@@ -6,8 +6,11 @@ import cn.nukkit.level.Location;
 import cn.nukkit.math.Vector3;
 import net.axda.se.api.API;
 import org.graalvm.polyglot.HostAccess;
+import org.graalvm.polyglot.Value;
 
-public class IntPos implements Pos {
+import java.io.Serializable;
+
+public class IntPos implements Pos, Serializable {
 
     @HostAccess.Export
     public int x;
@@ -28,12 +31,13 @@ public class IntPos implements Pos {
     public String level;
 
     @HostAccess.Export
-    public IntPos(int x, int y, int z, int dimid, String level) {
+    public IntPos(int x, int y, int z, Value value) {
+        Level l = API.getLevel(value);
         this.x = x;
         this.y = y;
         this.z = z;
-        this.dimid = dimid;
-        this.level = level;
+        this.dimid = l.getDimension();
+        this.level = l.getName();
         switch (dimid) {
             case 0: dim = "主世界"; break;
             case 1: dim = "下界"; break;
@@ -42,12 +46,12 @@ public class IntPos implements Pos {
     }
 
     public IntPos(Vector3 vector3, Level level) {
-        this(vector3.getFloorX(), vector3.getFloorY(), vector3.getFloorZ(), level.getDimension(), level.getName());
+        this(vector3.getFloorX(), vector3.getFloorY(), vector3.getFloorZ(), level);
     }
 
     @HostAccess.Export
-    public IntPos(int x, int y, int z, int dimid) {
-        this(x, y, z, dimid, Server.getInstance().getDefaultLevel().getName());
+    public IntPos(int x, int y, int z, Level level) {
+        this(x, y, z, Value.asValue(level));
     }
 
     @Override

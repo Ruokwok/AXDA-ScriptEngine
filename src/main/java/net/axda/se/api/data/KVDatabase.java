@@ -45,13 +45,8 @@ public class KVDatabase extends API implements AutoCloseable {
     @HostAccess.Export
     public boolean set(String key, Value value) {
         if (key == null) return false;
-        Object obj = toString(value);
         try {
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            ObjectOutputStream oos = new ObjectOutputStream(bos);
-            oos.writeObject(obj);
-            oos.flush();
-            byte[] bytes = bos.toByteArray();
+            byte[] bytes = serializeObject(value.as(Serializable.class));
             this.db.put(key.getBytes(), bytes);
             return true;
         } catch (IOException e) {
@@ -68,9 +63,7 @@ public class KVDatabase extends API implements AutoCloseable {
             return null;
         }
         try {
-            ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
-            ObjectInputStream ois = new ObjectInputStream(bis);
-            Object o = ois.readObject();
+            Object o = deserializeObject(bytes);
             return o;
         } catch (IOException | ClassNotFoundException e) {
             Server.getInstance().getLogger().error("Failed to deserialize object for key: " + key, e);
@@ -94,9 +87,23 @@ public class KVDatabase extends API implements AutoCloseable {
                 String key = new String(keyBytes);
                 keys.add(key);
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             Server.getInstance().getLogger().error("Failed to list all keys", e);
         }
         return ProxyArray.fromList(keys);
+    }
+
+    public byte[] serializeObject(Serializable obj) throws IOException {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream(bos);
+        oos.writeObject(obj);
+        oos.flush();
+        return bos.toByteArray();
+    }
+
+    public Object deserializeObject(byte[] bytes) throws IOException, ClassNotFoundException {
+        ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
+        ObjectInputStream ois = new ObjectInputStream(bis);
+        return ois.readObject();
     }
 }

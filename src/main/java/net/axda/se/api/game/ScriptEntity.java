@@ -98,7 +98,7 @@ public class ScriptEntity extends API implements ProxyAPI, Pos {
     @ProxyField
     public IntPos blockPos() {
         Block block = entity.getLevelBlock();
-        return new IntPos(block.getFloorX(), block.getFloorY(), block.getFloorZ(), block.getLevel().getDimension());
+        return new IntPos(block, block.getLevel());
     }
 
     @ProxyField

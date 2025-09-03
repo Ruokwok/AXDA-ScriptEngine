@@ -8,7 +8,9 @@ import net.axda.se.api.API;
 import org.graalvm.polyglot.HostAccess;
 import org.graalvm.polyglot.Value;
 
-public class FloatPos implements Pos {
+import java.io.Serializable;
+
+public class FloatPos implements Pos, Serializable {
 
     @HostAccess.Export
     public double x;
@@ -45,6 +47,10 @@ public class FloatPos implements Pos {
 
     public FloatPos(Vector3 vector3, Level level) {
         this(vector3.getX(), vector3.getY(), vector3.getZ(),Value.asValue(level));
+    }
+
+    public FloatPos(float x, float y, float z, Level level) {
+        this(x, y, z, Value.asValue(level));
     }
 
     @Override

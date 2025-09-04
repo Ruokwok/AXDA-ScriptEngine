@@ -146,7 +146,8 @@ public class ScriptItem extends API implements ProxyAPI {
 
     @ProxyField
     public boolean isOffhandItem() {
-        return item.allowOffhand();
+//        return item.allowOffhand();
+        return false;
     }
 
     @ProxyField

@@ -56,11 +56,15 @@ public class ASECommand extends Command {
         ScriptLoader loader = ScriptLoader.getInstance();
         Collection<ScriptEngine> engines = loader.getScriptMap().values();
         StringBuilder sb = new StringBuilder();
-        sb.append("Script Plugins (").append(engines.size()).append("):" + TextFormat.getByChar('a'));
+        sb.append("Script Plugins (").append(engines.size()).append("):");
         for (ScriptEngine engine : loader.getScriptMap().values()) {
-            sb.append(" ").append(engine.getDescription().getName()).append(" v")
+            sb.append(TextFormat.getByChar('a'))
+                    .append(" ")
+                    .append(engine.getDescription().getName())
+                    .append(" v")
                     .append(engine.getDescription().getVersionStr())
-                    .append(TextFormat.getByChar('r') + ",");
+                    .append(TextFormat.getByChar('r'))
+                    .append(",");
         }
         sender.sendMessage(sb.toString());
         return true;

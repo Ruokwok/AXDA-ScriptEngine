@@ -26,6 +26,9 @@ public enum ListenEvent {
     PlayerOnTakeItem("onTakeItem"),
     PlayerOnDropItem("onDropItem"),
     PlayerOnAte("onAte"),
+    PlayerOnEffectAdded("onEffectAdded"),
+    PlayerOnEffectRemoved("onEffectRemoved"),
+    PlayerOnEffectUpdated("onEffectUpdated"),
     ;
 
     private static List<String> list;

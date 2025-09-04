@@ -1,13 +1,18 @@
 package net.axda.se;
 
 import cn.nukkit.Player;
+import cn.nukkit.entity.Entity;
 import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.Listener;
 import cn.nukkit.event.entity.EntityDamageByEntityEvent;
+import cn.nukkit.event.entity.EntityEffectRemoveEvent;
+import cn.nukkit.event.entity.EntityEffectUpdateEvent;
+import cn.nukkit.event.entity.EntityPotionEffectEvent;
 import cn.nukkit.event.inventory.InventoryPickupItemEvent;
 import cn.nukkit.event.player.*;
 import cn.nukkit.form.window.FormWindow;
 import cn.nukkit.level.Location;
+import cn.nukkit.potion.Effect;
 import net.axda.se.api.game.ScriptBlock;
 import net.axda.se.api.game.ScriptEntity;
 import net.axda.se.api.game.ScriptItem;
@@ -161,6 +166,42 @@ public class ScriptListener implements Listener {
                 loader.getPlayer(event.getPlayer()),
                 new ScriptItem(event.getPlayer().getInventory().getItemInHand()));
         if (!c) event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void playerOnEffectAdded(EntityEffectUpdateEvent event) {
+        Entity entity = event.getEntity();
+        Effect effect = event.getNewEffect();
+        if (entity instanceof Player player) {
+            Effect oldEffect = event.getOldEffect();
+            if (oldEffect != null) {
+                boolean c = ListenMap.call(ListenEvent.PlayerOnEffectAdded.getValue(),
+                        loader.getPlayer(player),
+                        effect.getName(),
+                        effect.getAmplifier(),
+                        effect.getDuration());
+                if (!c) event.setCancelled(true);
+            } else {
+                boolean c = ListenMap.call(ListenEvent.PlayerOnEffectUpdated.getValue(),
+                        loader.getPlayer(player),
+                        effect.getName(),
+                        effect.getAmplifier(),
+                        effect.getDuration());
+                if (!c) event.setCancelled(true);
+            }
+        }
+    }
+
+    @EventHandler
+    public void playerOnEffectRemoved(EntityEffectRemoveEvent event) {
+        Entity entity = event.getEntity();
+        Effect effect = event.getRemoveEffect();
+        if (entity instanceof Player player) {
+            boolean c = ListenMap.call(ListenEvent.PlayerOnEffectRemoved.getValue(),
+                    loader.getPlayer(player),
+                    effect.getName());
+            if (!c) event.setCancelled(true);
+        }
     }
 
 }

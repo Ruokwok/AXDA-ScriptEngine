@@ -3,6 +3,7 @@ package net.axda.se.api;
 import net.axda.se.exception.ScriptExecuteException;
 import org.graalvm.polyglot.HostAccess;
 import org.graalvm.polyglot.Value;
+import org.graalvm.polyglot.proxy.ProxyArray;
 import org.graalvm.polyglot.proxy.ProxyExecutable;
 import org.graalvm.polyglot.proxy.ProxyObject;
 
@@ -49,7 +50,7 @@ public interface ProxyAPI extends ProxyObject {
 
     @Override
     default Object getMemberKeys() {
-        ArrayList<String> list = new ArrayList<>();
+        ArrayList<Object> list = new ArrayList<>();
         Method[] methods = getClass().getMethods();
         for (Method method : methods) {
             if (method.isAnnotationPresent(HostAccess.Export.class)
@@ -57,7 +58,7 @@ public interface ProxyAPI extends ProxyObject {
                 list.add(method.getName());
             }
         }
-        return list;
+        return ProxyArray.fromList(list);
     }
 
     @Override

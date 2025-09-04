@@ -67,12 +67,17 @@ public class ASECommand extends Command {
     }
 
     public boolean unload(CommandSender sender, String[] args) {
-        ScriptEngine engine = ScriptLoader.getInstance().getEngine(args[1]);
-        if (engine != null) {
-            ScriptLoader.getInstance().disablePlugin(engine);
-            return true;
-        } else {
-            sender.sendMessage("Plugin '" + args[1] + "' not loaded.");
+        try {
+            ScriptEngine engine = ScriptLoader.getInstance().getEngine(args[1]);
+            if (engine != null) {
+                ScriptLoader.getInstance().disablePlugin(engine);
+                return true;
+            } else {
+                sender.sendMessage("Plugin '" + args[1] + "' not loaded.");
+                return false;
+            }
+        } catch (ArrayIndexOutOfBoundsException e) {
+            sender.sendMessage("Usage: /ase unload <plugin>");
             return false;
         }
     }

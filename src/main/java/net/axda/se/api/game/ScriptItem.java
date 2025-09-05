@@ -4,6 +4,7 @@ import cn.nukkit.item.Item;
 import net.axda.se.api.API;
 import net.axda.se.api.ProxyAPI;
 import net.axda.se.api.ProxyField;
+import net.axda.se.api.nbt.NbtCompound;
 import net.axda.se.exception.UnsupportedMemberException;
 import org.graalvm.polyglot.HostAccess;
 import org.graalvm.polyglot.Value;
@@ -136,7 +137,7 @@ public class ScriptItem extends API implements ProxyAPI {
 
     @ProxyField
     public boolean isLiquidClipItem() {
-        throw new UnsupportedMemberException("isLiquidClipItem");
+        return false;
     }
 
     @ProxyField
@@ -173,7 +174,8 @@ public class ScriptItem extends API implements ProxyAPI {
 
     @ProxyField
     public boolean setNull(Value... args) {
-        throw new UnsupportedMemberException("setNull");
+        item.setCount(-1);
+        return true;
     }
 
     @HostAccess.Export
@@ -183,13 +185,20 @@ public class ScriptItem extends API implements ProxyAPI {
 
     @HostAccess.Export
     public boolean setDamage(Value... args) {
-        item.setDamage(args[0].asInt());
-        return true;
+        if (item.isTool() || item.isArmor()) {
+            int k = item.getDamage() - args[0].asInt();
+            if (k >= 0) {
+                item.setDamage(k);
+                return true;
+            }
+        }
+        return false;
     }
 
     @HostAccess.Export
     public boolean setAux(Value... args) {
-        throw new UnsupportedMemberException("setAux");
+        item.setDamage(args[0].asInt());
+        return true;
     }
 
     @HostAccess.Export
@@ -199,7 +208,7 @@ public class ScriptItem extends API implements ProxyAPI {
 
     @HostAccess.Export
     public Object getNbt(Value... args) {
-        throw new UnsupportedMemberException("getNbt");
+        return new NbtCompound(item.getNamedTag());
     }
 
     @HostAccess.Export

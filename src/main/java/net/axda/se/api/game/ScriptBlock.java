@@ -1,6 +1,8 @@
 package net.axda.se.api.game;
 
-import cn.nukkit.block.Block;
+import cn.nukkit.block.*;
+import cn.nukkit.blockentity.BlockEntity;
+import cn.nukkit.inventory.InventoryHolder;
 import net.axda.se.api.API;
 import net.axda.se.api.ProxyAPI;
 import net.axda.se.api.ProxyField;
@@ -8,8 +10,6 @@ import net.axda.se.api.game.data.IntPos;
 import net.axda.se.exception.UnsupportedMemberException;
 import org.graalvm.polyglot.HostAccess;
 import org.graalvm.polyglot.Value;
-import org.graalvm.polyglot.proxy.ProxyExecutable;
-import org.graalvm.polyglot.proxy.ProxyObject;
 
 public class ScriptBlock extends API implements ProxyAPI {
 
@@ -50,12 +50,13 @@ public class ScriptBlock extends API implements ProxyAPI {
 
     @ProxyField
     public int tileData() {
-        throw new UnsupportedMemberException("tileData");
+        return block.getDamage();
     }
 
     @ProxyField
     public int variant() {
-        throw new UnsupportedMemberException("variant");
+        //抄的PNX-LLSE-Lib，他们也没弄懂这是什么。
+        return -1;
     }
 
     @ProxyField
@@ -65,67 +66,67 @@ public class ScriptBlock extends API implements ProxyAPI {
 
     @ProxyField
     public int thickness() {
-        throw new UnsupportedMemberException("thickness");
+        return (int) (block.getMaxY() - block.getMinY());
     }
 
     @ProxyField
     public boolean isAir() {
-        return block.getId() == Block.AIR;
+        return block.isAir();
     }
 
     @ProxyField
     public boolean isBounceBlock() {
-        throw new UnsupportedMemberException("isBounceBlock");
+        return block.getId() == 165;
     }
 
     @ProxyField
     public boolean isButtonBlock() {
-        throw new UnsupportedMemberException("isButtonBlock");
+        return block instanceof BlockButton;
     }
 
     @ProxyField
     public boolean isCropBlock() {
-        throw new UnsupportedMemberException("isCropBlock");
+        return block instanceof BlockCrops;
     }
 
     @ProxyField
     public boolean isDoorBlock() {
-        throw new UnsupportedMemberException("isDoorBlock");
+        return block instanceof BlockDoor;
     }
 
     @ProxyField
     public boolean isFenceBlock() {
-        throw new UnsupportedMemberException("isFenceBlock");
+        return block instanceof BlockFence;
     }
 
     @ProxyField
     public boolean isFenceGateBlock() {
-        throw new UnsupportedMemberException("isFenceGateBlock");
+        return block instanceof BlockFenceGate;
     }
 
     @ProxyField
     public boolean isHeavyBlock() {
-        throw new UnsupportedMemberException("isHeavyBlock");
+        return false;
     }
 
     @ProxyField
     public boolean isStemBlock() {
-        throw new UnsupportedMemberException("isStemBlock");
+        return block instanceof BlockFlower || block instanceof BlockGrass || block instanceof BlockTallGrass;
     }
 
     @ProxyField
     public boolean isSlabBlock() {
-        throw new UnsupportedMemberException("isSlabBlock");
+        return block instanceof BlockSlab;
     }
 
     @ProxyField
     public boolean isUnbreakable() {
-        throw new UnsupportedMemberException("isUnbreakable");
+        return block.getHardness() == -1;
     }
 
     @ProxyField
     public boolean isWaterBlockingBlock() {
-        throw new UnsupportedMemberException("isWaterBlockingBlock");
+        return block instanceof BlockTransparentMeta;
     }
 
     @HostAccess.Export
@@ -150,22 +151,32 @@ public class ScriptBlock extends API implements ProxyAPI {
 
     @HostAccess.Export
     public boolean hasContainer(Value... args) {
-        throw new UnsupportedMemberException("hasContainer");
+        BlockEntity blockEntity = block.getLevelBlockEntity();
+        if (blockEntity == null) return false;
+        return blockEntity instanceof InventoryHolder;
     }
 
     @HostAccess.Export
-    public Object getContainer(Value... args) {
-        throw new UnsupportedMemberException("getContainer");
+    public Container getContainer(Value... args) {
+        BlockEntity blockEntity = block.getLevelBlockEntity();
+        if (blockEntity instanceof InventoryHolder inventoryHolder) {
+            return new Container(inventoryHolder.getInventory());
+        }
+        return null;
     }
 
     @HostAccess.Export
     public boolean hasBlockEntity(Value... args) {
-        throw new UnsupportedMemberException("hasBlockEntity");
+        BlockEntity blockEntity = block.getLevelBlockEntity();
+        return blockEntity != null;
     }
 
     @HostAccess.Export
     public Object getBlockEntity(Value... args) {
-        throw new UnsupportedMemberException("getBlockEntity");
+        if (hasBlockEntity()) {
+            return new ScriptBlockEntity(block.getLevelBlockEntity());
+        }
+        return null;
     }
 
     @HostAccess.Export

@@ -24,6 +24,10 @@ import cn.nukkit.level.Location;
 import cn.nukkit.level.biome.Biome;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.nbt.tag.StringTag;
+import cn.nukkit.network.protocol.types.DisplaySlot;
+import cn.nukkit.network.protocol.types.SortOrder;
+import cn.nukkit.scoreboard.scoreboard.IScoreboard;
+import cn.nukkit.scoreboard.scoreboard.Scoreboard;
 import cn.nukkit.utils.BossBarColor;
 import cn.nukkit.utils.DummyBossBar;
 import me.onebone.economyapi.EconomyAPI;
@@ -54,6 +58,7 @@ public class ScriptPlayer extends API implements ProxyAPI, Pos {
     private Hashtable<Integer, Form> formCallback = new Hashtable<>();
     private int formId = -114514;
     private HashMap<Integer, Long> bossBarMap;
+    private Scoreboard scoreboard;
 
     public ScriptPlayer(Player player) {
         this.player = player;
@@ -843,12 +848,30 @@ public class ScriptPlayer extends API implements ProxyAPI, Pos {
 
     @HostAccess.Export
     public boolean setSidebar(Value... args) {
-        throw new UnsupportedMemberException("setSidebar");
+        String title = args[0].asString();
+        Map<String, Integer> map = args[1].as(Map.class);
+        int sort = 0;
+        if (args.length > 2) {
+            sort = args[2].asInt();
+        }
+        if (sort == 1) {
+            scoreboard = new Scoreboard(title, title, "dummy", SortOrder.DESCENDING);
+        } else if (sort == 0) {
+            scoreboard = new Scoreboard(title, title, "dummy", SortOrder.ASCENDING);
+        }
+        if (scoreboard == null) return false;
+        for (Map.Entry<String, Integer> entry : map.entrySet()) {
+            scoreboard.addLine(entry.getKey(), entry.getValue());
+        }
+        scoreboard.addViewer(player, DisplaySlot.SIDEBAR);
+        return true;
     }
 
     @HostAccess.Export
     public boolean removeSidebar(Value... args) {
-        throw new UnsupportedMemberException("removeSidebar");
+        if (scoreboard == null) return false;
+        player.removeScoreboard(scoreboard);
+        return true;
     }
 
     @HostAccess.Export

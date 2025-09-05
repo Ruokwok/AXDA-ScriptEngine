@@ -19,11 +19,11 @@ import cn.nukkit.form.window.FormWindow;
 import cn.nukkit.form.window.FormWindowCustom;
 import cn.nukkit.form.window.FormWindowModal;
 import cn.nukkit.form.window.FormWindowSimple;
-import cn.nukkit.item.Item;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
 import cn.nukkit.level.biome.Biome;
 import cn.nukkit.math.Vector3;
+import cn.nukkit.nbt.tag.StringTag;
 import cn.nukkit.utils.BossBarColor;
 import cn.nukkit.utils.DummyBossBar;
 import me.onebone.economyapi.EconomyAPI;
@@ -37,6 +37,7 @@ import net.axda.se.api.gui.CustomForm;
 import net.axda.se.api.gui.Form;
 import net.axda.se.api.gui.ModalForm;
 import net.axda.se.api.gui.SimpleForm;
+import net.axda.se.api.nbt.NbtCompound;
 import net.axda.se.exception.UnsupportedMemberException;
 import net.axda.se.exception.ValueTypeException;
 import net.axda.se.api.API;
@@ -876,32 +877,43 @@ public class ScriptPlayer extends API implements ProxyAPI, Pos {
 
     @HostAccess.Export
     public Object getNbt(Value... args) {
-        throw new UnsupportedMemberException("getNbt");
+        return new NbtCompound(player.namedTag);
     }
 
     @HostAccess.Export
     public boolean setNbt(Value... args) {
-        throw new UnsupportedMemberException("setNbt");
+        NbtCompound nbt = args[0].as(NbtCompound.class);
+        player.namedTag = nbt.getNbt();
+        return true;
     }
 
     @HostAccess.Export
     public boolean addTag(Value... args) {
-        throw new UnsupportedMemberException("addTag");
+        String tag = args[0].asString();
+        if (player.containTag(tag)) return false;
+        player.addTag(tag);
+        return true;
     }
 
     @HostAccess.Export
     public boolean removeTag(Value... args) {
-        throw new UnsupportedMemberException("removeTag");
+        player.removeTag(args[0].asString());
+        return true;
     }
 
     @HostAccess.Export
     public boolean hasTag(Value... args) {
-        throw new UnsupportedMemberException("hasTag");
+        return player.containTag(args[0].asString());
     }
 
     @HostAccess.Export
-    public Object getAllTags(Value... args) {
-        throw new UnsupportedMemberException("getAllTags");
+    public ProxyArray getAllTags(Value... args) {
+        List<StringTag> allTags = player.getAllTags();
+        ArrayList<Object> list = new ArrayList<>();
+        for (StringTag tag : allTags) {
+            list.add(tag.data);
+        }
+        return ProxyArray.fromList(list);
     }
 
     @HostAccess.Export

@@ -1,6 +1,5 @@
 package net.axda.se.api.game;
 
-import cn.nukkit.inventory.ContainerInventory;
 import cn.nukkit.inventory.Inventory;
 import cn.nukkit.item.Item;
 import org.graalvm.polyglot.HostAccess;
@@ -15,8 +14,13 @@ public class Container {
 
     public Container(Inventory inventory) {
         this.inventory = inventory;
-        this.size = inventory.getSize();
-        this.type = inventory.getType().name();
+        if (inventory != null) {
+            this.size = inventory.getSize();
+            this.type = inventory.getType().name();
+        } else {
+            this.size = 0;
+            this.type = "Unknown";
+        }
     }
 
     public Container(Item[] items, String type) {
@@ -80,7 +84,11 @@ public class Container {
         ArrayList<Object> list = new ArrayList<>();
         for (int i = 0; i < inventory.getSize(); i++) {
             Item item = contents.get(i);
-            list.add(new ScriptItem(item));
+            if (item == null) {
+                list.add(null);
+            } else {
+                list.add(new ScriptItem(item));
+            }
         }
         return ProxyArray.fromList(list);
     }

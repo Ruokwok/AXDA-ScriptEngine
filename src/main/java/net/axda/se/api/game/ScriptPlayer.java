@@ -694,9 +694,8 @@ public class ScriptPlayer extends API implements ProxyAPI, Pos {
     }
 
     @HostAccess.Export
-    public Object getArmor(Value... args) {
-        Item[] contents = player.getInventory().getArmorContents();
-        return new Container(contents, "Armor");
+    public Container getArmor(Value... args) {
+        return new ArmorContainer(player);
     }
 
     @HostAccess.Export

@@ -4,6 +4,7 @@ import cn.nukkit.blockentity.BlockEntity;
 import net.axda.se.api.ProxyAPI;
 import net.axda.se.api.ProxyField;
 import net.axda.se.api.game.data.IntPos;
+import net.axda.se.api.nbt.NbtCompound;
 import net.axda.se.exception.UnsupportedMemberException;
 import org.graalvm.polyglot.HostAccess;
 import org.graalvm.polyglot.Value;
@@ -38,7 +39,7 @@ public class ScriptBlockEntity implements ProxyAPI {
 
     @HostAccess.Export
     public Object getNbt(Value... args) {
-        throw new UnsupportedMemberException("getNbt");
+        return new NbtCompound(blockEntity.namedTag);
     }
 
     @HostAccess.Export

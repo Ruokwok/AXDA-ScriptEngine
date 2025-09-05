@@ -8,6 +8,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.graalvm.polyglot.HostAccess;
 import org.graalvm.polyglot.Value;
+import org.graalvm.polyglot.proxy.ProxyArray;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -62,8 +63,9 @@ public class JsonConfigFile extends API {
                 }
             } else if (obj instanceof Map<?,?> m) {
                 return new HashMap<>(m);
-            } else if (obj instanceof List<?> list) {
-                return new ArrayList<>(list);
+            } else if (obj instanceof List<?> l) {
+                ArrayList<Object> list = new ArrayList<>(l);
+                return ProxyArray.fromList(list);
             }
             return obj;
         } else {

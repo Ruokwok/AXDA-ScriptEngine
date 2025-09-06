@@ -5,7 +5,7 @@
 
 [![stars](https://img.shields.io/github/stars/Ruokwok/AXDA-ScriptEngine)](https://github.com/Ruokwok/AXDA-ScriptEngine)
 [![license](https://img.shields.io/github/license/Ruokwok/AXDA-ScriptEngine)](https://github.com/Ruokwok/AXDA-ScriptEngine/blob/master/LICENSE)
-[![license](https://img.shields.io/badge/version-1.0.0-red)](https://github.com/Ruokwok/AXDA-ScriptEngine)
+[![version](https://img.shields.io/badge/version-1.0.0-red)](https://github.com/Ruokwok/AXDA-ScriptEngine)
 
 ## AXDA - Script Engine
 Nukkit-MOT平台上的JavaScript脚本插件加载器，基于GraalVM实现。
@@ -38,3 +38,9 @@ ASE API目标是兼容绝大部分LSE API，基于LSE开发的JavaScript插件�
 
 #### KVDatabase差异
 ASE的KVDatabase接口虽然底层和LSE一样使用LevelDB实现，但是序列化/反序列化实现方式有所不同，所以在LSE上创建的数据库无法迁移到ASE上使用。
+
+### 致谢
+AXDA-ScriptEngine的实现离不开以下项目:
+- [Nukkit-MOT](https://github.com/MemoriesOfTime/Nukkit-MOT)
+- [PNX LLSE-Lib](https://github.com/PowerNukkitX-Bundle/LLSE-Lib)
+- [LegacyScriptEngine](https://github.com/LiteLDev/LegacyScriptEngine)
